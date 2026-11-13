@@ -120,9 +120,9 @@ pre .plus{color:var(--ok)}pre .minus{color:var(--bad)}pre .at{color:var(--akzent
 
 /* Wortmarke */
 aside .logo{flex-direction:column;align-items:flex-start;gap:2px}
-aside .logo img.wortmarke{width:176px;height:auto;margin-left:-4px}
+aside .logo img.wortmarke{width:194px;height:auto;margin:-6px 0 -4px -12px}
 aside .logo small{padding-left:2px}
-.mitte .logo-gross img.wortmarke{width:300px;max-width:100%;height:auto}
+.mitte .logo-gross img.wortmarke{width:320px;max-width:100%;height:auto}
 .mitte .logo-gross img.symbol{width:92px;height:92px;display:block;margin:0 auto 4px}
 .mitte .logo-gross img.wortmarke{display:block;margin:0 auto}
 /* Logo: weicher Schatten passend zum Untergrund (dunkel: hell, hell: dunkel) */
