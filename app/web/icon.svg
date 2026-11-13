@@ -46,7 +46,7 @@
     <linearGradient id="pIdent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8f0c5"/><stop offset=".5" stop-color="#3ddc84"/><stop offset="1" stop-color="#14864a"/></linearGradient>
     <linearGradient id="pRout" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#ffc233"/><stop offset="1" stop-color="#b9800a"/></linearGradient>
     <linearGradient id="pAcc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffaaaa"/><stop offset=".5" stop-color="#ff5a5a"/><stop offset="1" stop-color="#b52222"/></linearGradient>
-    <path id="m" transform="translate(0 -3)" d="M28 54.17L34.51 31.83L44.18 31.83Q44.56 31.83 44.94 32.01Q45.33 32.18 45.63 32.47Q45.93 32.76 46.16 33.12Q46.38 33.49 46.47 33.84L48.90 44.12L60.16 31.83L72 31.83L65.11 54.17L54.80 54.17L56.91 46.86L50.30 54.17L40.32 54.17L38.63 46.86L35.94 54.17Z"/>
+    <path id="m" transform="translate(0 -3)" d="M34.86 54.17L28 54.17L33.33 35.98L34.35 35.98L36.84 46.86ZM35.15 31.83L44.18 31.83Q44.56 31.83 44.94 32.01Q45.33 32.18 45.63 32.47Q45.93 32.76 46.16 33.12Q46.38 33.49 46.47 33.84L48.90 44.12L60.16 31.83L72 31.83L65.11 54.17L54.80 54.17L56.91 46.86L50.30 54.17L40.32 54.17Z"/>
     <filter id="mschein" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="3.2"/></filter>
     <filter id="sschatten" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><feGaussianBlur stdDeviation="2.2"/></filter>
     <filter id="mschatten" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="1.6"/></filter>

@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6.0 0 447.8 159" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6.0 0 450.5 159" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
   <defs>
     <!-- Buchstaben: Schrift Dream MMA (dafont, 100% kostenlos) als Pfade -->
-    <path id="b" d="M20 97L40.40 27L70.70 27Q71.90 27 73.10 27.55Q74.30 28.10 75.25 29Q76.20 29.90 76.90 31.05Q77.60 32.20 77.90 33.30L85.50 65.50L120.80 27L157.90 27L136.30 97L104 97L110.60 74.10L89.90 97L58.60 97L53.30 74.10L44.90 97ZM181.50 97L152.50 97L173 27L202.90 27ZM232.20 97L199.40 97L221.90 27L297.50 27Q299.10 27 300.45 27.80Q301.80 28.60 302.85 30Q303.90 31.40 304.60 33.25Q305.30 35.10 305.70 37.10L305.70 37.10Q305.90 38.10 305.65 39.85Q305.40 41.60 304.90 43.70Q304.40 45.80 303.65 48.20Q302.90 50.60 302.20 53L302.20 53Q300.40 58.50 298 64.90L298 64.90L294.40 70.60Q293.60 71.80 292.15 72.60Q290.70 73.40 289.60 74.20L289.60 74.20Q288.80 74.70 287.65 74.80Q286.50 74.90 285 75.20L285 75.20Q284.70 75.30 285 76.25Q285.30 77.20 286 78.75Q286.70 80.30 287.75 82.25Q288.80 84.20 289.90 86.20L289.90 86.20Q292.50 91 296.10 97L296.10 97L263.90 97L252.40 74.90L246 74.90L251 58.20L271.90 57.90L276.30 44.60L248.60 44.60L232.20 97ZM330.70 97L305.20 97L366.90 27L392.10 27Q393.90 27 395.70 28.15Q397.50 29.30 398.60 30.70L398.60 30.70Q399.60 32 400.45 33.40Q401.30 34.80 401.90 36.20L401.90 36.20Q402 36.60 402.70 39.40Q403.40 42.20 404.40 46.50Q405.40 50.80 406.60 56.25Q407.80 61.70 409.10 67.30L409.10 67.30Q412.10 80.50 415.80 97L415.80 97L381.50 97L377.90 84.10L349.30 83.70Q353.30 79 356.60 75.20L356.60 75.20Q357.90 73.60 359.25 72.10Q360.60 70.60 361.65 69.40Q362.70 68.20 363.35 67.45Q364 66.70 364 66.70L364 66.70L373.90 66.70L370.30 52.10L330.70 97Z"/>
+    <path id="b" d="M41.50 97L20 97L36.70 40L39.90 40L47.70 74.10ZM42.40 27L70.70 27Q71.90 27 73.10 27.55Q74.30 28.10 75.25 29Q76.20 29.90 76.90 31.05Q77.60 32.20 77.90 33.30L85.50 65.50L120.80 27L157.90 27L136.30 97L104 97L110.60 74.10L89.90 97L58.60 97ZM181.87 97L152.87 97L173.37 27L203.27 27ZM230.14 97L197.34 97L219.84 27L295.44 27Q297.04 27 298.39 27.80Q299.74 28.60 300.79 30Q301.84 31.40 302.54 33.25Q303.24 35.10 303.64 37.10L303.64 37.10Q303.84 38.10 303.59 39.85Q303.34 41.60 302.84 43.70Q302.34 45.80 301.59 48.20Q300.84 50.60 300.14 53L300.14 53Q298.34 58.50 295.94 64.90L295.94 64.90L292.34 70.60Q291.54 71.80 290.09 72.60Q288.64 73.40 287.54 74.20L287.54 74.20Q286.74 74.70 285.59 74.80Q284.44 74.90 282.94 75.20L282.94 75.20Q282.64 75.30 282.94 76.25Q283.24 77.20 283.94 78.75Q284.64 80.30 285.69 82.25Q286.74 84.20 287.84 86.20L287.84 86.20Q290.44 91 294.04 97L294.04 97L261.84 97L250.34 74.90L243.94 74.90L248.94 58.20L269.84 57.90L274.24 44.60L246.54 44.60L230.14 97ZM393.00 97L418.50 97L356.80 27L331.60 27Q329.80 27 328.00 28.15Q326.20 29.30 325.10 30.70L325.10 30.70Q324.10 32 323.25 33.40Q322.40 34.80 321.80 36.20L321.80 36.20Q321.70 36.60 321.00 39.40Q320.30 42.20 319.30 46.50Q318.30 50.80 317.10 56.25Q315.90 61.70 314.60 67.30L314.60 67.30Q311.60 80.50 307.90 97L307.90 97L342.20 97L345.80 84.10L374.40 83.70Q370.40 79 367.10 75.20L367.10 75.20Q365.80 73.60 364.45 72.10Q363.10 70.60 362.05 69.40Q361.00 68.20 360.35 67.45Q359.70 66.70 359.70 66.70L359.70 66.70L349.80 66.70L353.40 52.10L393.00 97Z"/>
     <linearGradient id="rahmen" x1="0" y1="18" x2="0" y2="102" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#4b4f58"/><stop offset=".5" stop-color="#33363c"/><stop offset="1" stop-color="#202226"/>
     </linearGradient>
@@ -46,15 +46,15 @@
   <!-- Glanz -->
   <rect x="-50" y="0" width="600" height="110" fill="url(#sonne)" opacity=".6" mask="url(#form)"/>
   <g mask="url(#form)">
-    <ellipse cx="218" cy="-110" rx="381" ry="168" transform="rotate(-5 218 -110)" fill="url(#spiegel)" filter="url(#bogenweich)"/>
+    <ellipse cx="219" cy="-110" rx="383" ry="168" transform="rotate(-5 219 -110)" fill="url(#spiegel)" filter="url(#bogenweich)"/>
   </g>
 
   <!-- ausgeschrieben -->
-  <text x="23.0" y="123" textLength="389.8" font-family="'Segoe UI Semibold','Segoe UI',Arial,Helvetica,sans-serif" font-size="14" font-weight="600"
+  <text x="23.0" y="123" textLength="392.5" font-family="'Segoe UI Semibold','Segoe UI',Arial,Helvetica,sans-serif" font-size="14" font-weight="600"
         fill="#ffffff" stroke="#25272c" stroke-width="2.8" stroke-linejoin="round" paint-order="stroke" letter-spacing="1.5" lengthAdjust="spacing">MAIL · IDENTITY · ROUTING · ACCESS</text>
   <!-- Trennlinie -->
-  <path d="M84.4 133.4H351.4" stroke="#25272c" stroke-width="3.6" stroke-linecap="round"/>
-  <path d="M84.4 133.4H351.4" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
-  <text x="145.9" y="153" textLength="144.0" font-family="'Segoe UI Semibold','Segoe UI',Arial,Helvetica,sans-serif" font-size="14" font-weight="600"
+  <path d="M84.9 133.4H353.6" stroke="#25272c" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M84.9 133.4H353.6" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+  <text x="146.8" y="153" textLength="144.8" font-family="'Segoe UI Semibold','Segoe UI',Arial,Helvetica,sans-serif" font-size="14" font-weight="600"
         fill="#ffffff" stroke="#25272c" stroke-width="2.8" stroke-linejoin="round" paint-order="stroke" letter-spacing="1.5" lengthAdjust="spacing">MANAGEMENT</text>
 </svg>
