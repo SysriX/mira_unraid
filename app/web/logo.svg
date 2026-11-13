@@ -49,12 +49,12 @@
     </mask>
   </defs>
 
-  <!-- ganz leichter weißer Schein hinter dem Logo -->
-  <use href="#b" stroke="#fff" stroke-width="22" opacity=".14" filter="url(#schein)"/>
 
   <g mask="url(#schnitt)">
-  <!-- Schatten des Rahmens auf den Untergrund -->
-  <use href="#b" stroke="#000" stroke-width="20" opacity=".55" transform="translate(1.5 3)" filter="url(#weich)"/>
+  <!-- Tiefe: der Schriftzug steht aus dem Hintergrund hervor -->
+  <use href="#b" stroke="#0e0f11" stroke-width="20" transform="translate(2.4 4)"/>
+  <use href="#b" stroke="#16171a" stroke-width="20" transform="translate(1.6 2.7)"/>
+  <use href="#b" stroke="#1d1f23" stroke-width="20" transform="translate(.8 1.4)"/>
 
   <!-- Rahmen mit Lichtkante oben links -->
   <use href="#b" stroke="#80858f" stroke-width="20" transform="translate(-.6 -.9)"/>
