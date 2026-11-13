@@ -1,7 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="MIRA">
   <defs>
-    <!-- Schild: kantig, dunkel, zwei Hälften mit Mittelgrat, oranger Rand -->
-    <path id="schild" d="M50 6L83 16L79 52L50 78L21 52L17 16Z"/>
+    <!-- Schild: realistisch – oranger Metallrand mit Nieten, dunkles Metallfeld mit Grat -->
+    <path id="schild" d="M50 5L84 15L80.5 50Q75 65 50 80Q25 65 19.5 50L16 15Z"/>
+    <path id="feld" d="M50 12.2L76.6 20.2L74 48.5Q69.5 60.5 50 72.6Q30.5 60.5 26 48.5L23.4 20.2Z"/>
+    <linearGradient id="randmetall" x1="0" y1="5" x2="0" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd27a"/><stop offset=".3" stop-color="#ffa62b"/>
+      <stop offset=".7" stop-color="#f07a0a"/><stop offset="1" stop-color="#b85000"/>
+    </linearGradient>
+    <linearGradient id="feldmetall" x1="25" y1="12" x2="75" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4a4e57"/><stop offset=".5" stop-color="#2a2c32"/><stop offset="1" stop-color="#16171a"/>
+    </linearGradient>
+    <radialGradient id="licht" cx="38" cy="22" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="niete" cx=".35" cy=".3" r=".8">
+      <stop offset="0" stop-color="#fff2d6"/><stop offset=".5" stop-color="#c9a36a"/><stop offset="1" stop-color="#5a3b10"/>
+    </radialGradient>
     <linearGradient id="links" x1="0" y1="6" x2="0" y2="78" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#4a4e57"/>
       <stop offset=".6" stop-color="#2e3036"/>
@@ -35,44 +49,45 @@
     <linearGradient id="pIdent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8f0c5"/><stop offset=".5" stop-color="#3ddc84"/><stop offset="1" stop-color="#14864a"/></linearGradient>
     <linearGradient id="pRout" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#ffc233"/><stop offset="1" stop-color="#b9800a"/></linearGradient>
     <linearGradient id="pAcc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffaaaa"/><stop offset=".5" stop-color="#ff5a5a"/><stop offset="1" stop-color="#b52222"/></linearGradient>
-    <path id="m" d="M36 54V31L41 26L50 37L59 26L64 31V54" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10"/>
+    <path id="m" d="M37 55V32L42 26L50 37L58 26L63 32V55" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <mask id="mkern" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" stroke="#fff" stroke-width="3.4"/></mask>
   </defs>
 
-  <!-- Leiterbahnen hinter dem Schild -->
-  <g fill="none" stroke-linejoin="miter" stroke-linecap="butt">
-    <use href="#bahnen" stroke="#141518" stroke-width="5" transform="translate(.7 1.2)"/>
-    <use href="#bahnen" stroke="#2b2d33" stroke-width="5"/>
+  <!-- Leiterbahnen hinter dem Schild: Rand gleichmäßig, Seele in Dienstfarbe -->
+  <g fill="none" stroke-linejoin="round" stroke-linecap="butt">
+    <use href="#bahnen" stroke="#1a1b1f" stroke-width="5"/>
     <use href="#lMail" stroke="#4dc3ff" stroke-width="2.4"/>
     <use href="#lIdent" stroke="#3ddc84" stroke-width="2.4"/>
     <use href="#lRout" stroke="#ffc233" stroke-width="2.4"/>
     <use href="#lAcc" stroke="#ff5a5a" stroke-width="2.4"/>
-    <use href="#bahnen" stroke="#fff" stroke-width=".6" opacity=".5" transform="translate(-.3 -.4)"/>
   </g>
 
-  <!-- Schild: Tiefe (steht hervor), Hälften, Grat, Fase, oranger Rand -->
-  <use href="#schild" fill="#0e0f11" transform="translate(1.4 2.4)" stroke="#0e0f11" stroke-width="4" stroke-linejoin="round"/>
-  <use href="#schild" fill="#1a1b1f" transform="translate(.7 1.2)" stroke="#1a1b1f" stroke-width="4" stroke-linejoin="round"/>
-  <use href="#schild" fill="#1f2125" stroke="url(#orange)" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M50 8.2L17.6 18L21.4 51.5L50 77Z" fill="url(#links)"/>
-  <path d="M50 8.2L82.4 18L78.6 51.5L50 77Z" fill="url(#rechts)"/>
-  <path d="M50 13L77 21.4L74 49.4L50 71L26 49.4L23 21.4Z" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1" stroke-linejoin="round"/>
-  <path d="M50 8V77" stroke="#fff" stroke-opacity=".18" stroke-width=".8"/>
-  <path d="M50 8L17.6 18L19.6 36C30 32 40 31 50 31C60 31 70 32 80.4 36L82.4 18Z" fill="url(#glanz)"/>
-  <use href="#schild" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width=".7" stroke-linejoin="round" transform="translate(-.3 -.5)"/>
+  <!-- Schild: oranger Metallrand, dunkles Feld, Fase, Grat, Nieten -->
+  <use href="#schild" fill="url(#randmetall)" stroke="#1a1b1f" stroke-width="2.4" stroke-linejoin="round"/>
+  <use href="#schild" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width=".8" stroke-linejoin="round" transform="translate(50 42) scale(.965) translate(-50 -42)"/>
+  <use href="#feld" fill="#0d0e10" transform="translate(0 -.8)"/>
+  <use href="#feld" fill="url(#feldmetall)"/>
+  <path d="M50 12.2V72.6" stroke="#000" stroke-opacity=".35" stroke-width="1"/>
+  <path d="M50 12.2V72.6" stroke="#fff" stroke-opacity=".12" stroke-width=".8" transform="translate(-.8 0)"/>
+  <path d="M50 12.2L26 20L28 46L50 72.6Z" fill="#fff" fill-opacity=".05"/>
+  <use href="#feld" fill="url(#licht)"/>
+  <use href="#feld" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width=".7" transform="translate(0 .6)"/>
+  <g fill="url(#niete)" stroke="#1a1b1f" stroke-width=".5">
+    <circle cx="50" cy="8.6" r="1.5"/><circle cx="20.6" cy="17.4" r="1.5"/><circle cx="79.4" cy="17.4" r="1.5"/>
+    <circle cx="22.6" cy="49" r="1.5"/><circle cx="77.4" cy="49" r="1.5"/><circle cx="50" cy="76.6" r="1.5"/>
+  </g>
 
-  <!-- M wie der Schriftzug: Tiefe, Anthrazit-Rahmen, orange Seele -->
-  <use href="#m" stroke="#0e0f11" stroke-width="10" transform="translate(.8 1.4)"/>
-  <use href="#m" stroke="#80858f" stroke-width="10" transform="translate(-.35 -.55)"/>
+  <!-- M wie der Schriftzug: gleichmäßiger Rand, orange Seele -->
   <use href="#m" stroke="url(#anthrazit)" stroke-width="9.6"/>
-  <use href="#m" stroke="#a84400" stroke-width="3.6"/>
-  <use href="#m" stroke="url(#orange)" stroke-width="3.2" transform="translate(.3 .5)"/>
+  <use href="#m" stroke="#000" stroke-opacity=".35" stroke-width="5"/>
+  <g mask="url(#mkern)">
+    <use href="#m" stroke="#b54a00" stroke-width="4.4"/>
+    <use href="#m" stroke="url(#orange)" stroke-width="4.4" transform="translate(0 .45)"/>
+    <use href="#m" stroke="#fff" stroke-opacity=".35" stroke-width="1" transform="translate(0 -.9)"/>
+  </g>
 
   <!-- vier Dienste als eckige Lötflächen -->
-  <g stroke="#2b2d33" stroke-width="1.8">
-    <rect x="2.2" y="58.7" width="9" height="9" rx="1.2" fill="#0e0f11"/>
-    <rect x="2.2" y="74.7" width="9" height="9" rx="1.2" fill="#0e0f11"/>
-    <rect x="90.2" y="74.7" width="9" height="9" rx="1.2" fill="#0e0f11"/>
-    <rect x="90.2" y="58.7" width="9" height="9" rx="1.2" fill="#0e0f11"/>
+  <g stroke="#1a1b1f" stroke-width="1.8">
     <rect x="1.5" y="57.5" width="9" height="9" rx="1.2" fill="url(#pMail)"/>
     <rect x="1.5" y="73.5" width="9" height="9" rx="1.2" fill="url(#pIdent)"/>
     <rect x="89.5" y="73.5" width="9" height="9" rx="1.2" fill="url(#pRout)"/>

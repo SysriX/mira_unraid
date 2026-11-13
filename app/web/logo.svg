@@ -1,76 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 0 306 148" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 14 292 132" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
   <defs>
-    <!-- Buchstaben als Linien futuristisch: breit, abgeschrägte Ecken, A mit flachem Dach: M I R A -->
-    <g id="b" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10">
-      <path d="M22 92V38L32 28L60 60L88 28L98 38V92"/>
+    <!-- Buchstaben: futuristisch, abgeschrägte Ecken, weich gerundete Kanten -->
+    <g id="b" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 92V40L32 28L60 60L88 28L98 40V92"/>
       <path d="M124 28V92"/>
-      <path d="M150 92V28H190L200 38V54L190 64H150M184 64L204 92"/>
+      <path d="M150 92V28H188L200 40V52L188 64H150M182 64L204 92"/>
       <path d="M228 92V40L240 28H272L284 40V92M228 64H284"/>
     </g>
-    <!-- Rahmen: oben heller, unten dunkler (wirkt aufgesetzt) -->
-    <linearGradient id="rahmen" x1="0" y1="18" x2="0" y2="104" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#555962"/>
-      <stop offset=".5" stop-color="#3a3d44"/>
-      <stop offset="1" stop-color="#25272c"/>
+    <!-- Rand: gleichmäßig rundum, oben etwas heller (Licht von oben) -->
+    <linearGradient id="rahmen" x1="0" y1="18" x2="0" y2="102" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4b4f58"/>
+      <stop offset=".5" stop-color="#33363c"/>
+      <stop offset="1" stop-color="#202226"/>
     </linearGradient>
+    <!-- orange Seele mit weichem Licht oben -->
     <linearGradient id="seele" x1="0" y1="26" x2="0" y2="96" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffc04d"/>
-      <stop offset=".5" stop-color="#ff9a1a"/>
+      <stop offset="0" stop-color="#ffd27a"/>
+      <stop offset=".35" stop-color="#ffa62b"/>
       <stop offset="1" stop-color="#ff7000"/>
     </linearGradient>
-    <!-- Glanz über das ganze Logo: oben hell, schräger Lichtstreifen -->
-    <linearGradient id="glanz" x1="0" y1="18" x2="0" y2="104" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
-      <stop offset=".46" stop-color="#fff" stop-opacity=".12"/>
-      <stop offset=".5" stop-color="#fff" stop-opacity="0"/>
-      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="streif" x1="20" y1="20" x2="300" y2="100" gradientUnits="userSpaceOnUse">
-      <stop offset=".18" stop-color="#fff" stop-opacity="0"/>
-      <stop offset=".26" stop-color="#fff" stop-opacity=".35"/>
-      <stop offset=".31" stop-color="#fff" stop-opacity="0"/>
-      <stop offset=".62" stop-color="#fff" stop-opacity="0"/>
-      <stop offset=".66" stop-color="#fff" stop-opacity=".22"/>
-      <stop offset=".69" stop-color="#fff" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="schein" x="-20%" y="-40%" width="140%" height="180%">
-      <feGaussianBlur stdDeviation="5"/>
-    </filter>
-    <filter id="weich" x="-20%" y="-40%" width="140%" height="180%">
-      <feGaussianBlur stdDeviation="1.6"/>
-    </filter>
-    <!-- Innenfläche der Schrift: so breit wie der Rand links und rechts -->
-    <mask id="schnitt" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="150">
-      <rect x="0" y="0" width="320" height="150" fill="#fff"/>
-      <rect x="0" y="45.2" width="320" height="1.6" fill="#000"/>
-    </mask>
     <mask id="kern" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="150">
-      <use href="#b" stroke="#fff" stroke-width="6.5"/>
+      <use href="#b" stroke="#fff" stroke-width="7"/>
     </mask>
   </defs>
 
+  <!-- Rand, gleich breit an allen Seiten -->
+  <use href="#b" stroke="url(#rahmen)" stroke-width="20"/>
+  <!-- feine Fase innen am Rand -->
+  <use href="#b" stroke="#000" stroke-opacity=".35" stroke-width="10"/>
 
-  <g mask="url(#schnitt)">
-  <!-- Tiefe: der Schriftzug steht aus dem Hintergrund hervor -->
-  <use href="#b" stroke="#0e0f11" stroke-width="20" transform="translate(2.4 4)"/>
-  <use href="#b" stroke="#16171a" stroke-width="20" transform="translate(1.6 2.7)"/>
-  <use href="#b" stroke="#1d1f23" stroke-width="20" transform="translate(.8 1.4)"/>
-
-  <!-- Rahmen mit Lichtkante oben links -->
-  <use href="#b" stroke="#80858f" stroke-width="20" transform="translate(-.6 -.9)"/>
-  <use href="#b" stroke="#141518" stroke-width="20" transform="translate(.5 .8)"/>
-  <use href="#b" stroke="url(#rahmen)" stroke-width="19"/>
-
-  <!-- schmale orange Seele, vom Rahmen leicht überschattet -->
+  <!-- orange Seele, leicht gewölbt -->
   <g mask="url(#kern)">
-    <use href="#b" stroke="#a84400" stroke-width="8"/>
-    <use href="#b" stroke="url(#seele)" stroke-width="8" transform="translate(.8 1.3)"/>
-  </g>
-
-  <!-- Glanz über alles -->
-  <use href="#b" stroke="url(#glanz)" stroke-width="19"/>
-  <use href="#b" stroke="url(#streif)" stroke-width="19"/>
-
+    <use href="#b" stroke="#b54a00" stroke-width="9"/>
+    <use href="#b" stroke="url(#seele)" stroke-width="9" transform="translate(0 .9)"/>
+    <use href="#b" stroke="#fff" stroke-opacity=".35" stroke-width="2.2" transform="translate(0 -1.8)"/>
   </g>
 
   <!-- ausgeschrieben -->
