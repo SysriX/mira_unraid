@@ -19,7 +19,7 @@ from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import (JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, create_engine, select, text)
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
-VERSION = "0.1.3"
+VERSION = "0.1.4"
 DATA = os.environ.get("MIRA_DATA", "/config")
 KONFIG_DATEI = os.path.join(DATA, "mira.json")
 SCHLUESSEL_DATEI = os.path.join(DATA, "schluessel.key")
