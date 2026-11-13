@@ -50,6 +50,8 @@ async def schutz(req: Request, call_next):
                             "script-src 'self'; connect-src 'self'; frame-ancestors 'none'; form-action 'self'")
     if req.url.path.startswith("/api/"):
         resp.headers.setdefault("Cache-Control", "no-store")
+    elif req.url.path.startswith("/static/"):
+        resp.headers.setdefault("Cache-Control", "no-cache")   # immer kurz nachfragen (ETag) – nach Updates sofort neu
     return resp
 
 

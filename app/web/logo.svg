@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 0 314 124" role="img" aria-label="MIRA">
+  <defs>
+    <!-- Buchstaben als dicke Linien: M I R A -->
+    <g id="b" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 92V30L60 68L90 30V92"/>
+      <path d="M122 30V92"/>
+      <path d="M154 92V30H180a19 19 0 0 1 0 38H154M176 68L200 92"/>
+      <path d="M222 92L250 30L278 92M234 70H266"/>
+    </g>
+    <linearGradient id="weiss" x1="0" y1="26" x2="0" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".55" stop-color="#f7f7f8"/>
+      <stop offset="1" stop-color="#d9dbe0"/>
+    </linearGradient>
+    <filter id="schatten" x="-10%" y="-10%" width="130%" height="140%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <filter id="schein" x="-15%" y="-30%" width="130%" height="160%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+  <!-- oranger Schein, damit es auf dunklem Grund heraussticht -->
+  <use href="#b" stroke="#ff8a00" stroke-width="40" opacity=".55" transform="translate(2 5)" filter="url(#schein)"/>
+  <!-- weicher Bodenschatten -->
+  <use href="#b" stroke="#000" stroke-width="30" opacity=".45" transform="translate(5 11)" filter="url(#schatten)"/>
+  <!-- Tiefe (Extrusion) -->
+  <use href="#b" stroke="#141518" stroke-width="30" transform="translate(4 9)"/>
+  <use href="#b" stroke="#1c1d21" stroke-width="30" transform="translate(3 6)"/>
+  <use href="#b" stroke="#24262b" stroke-width="30" transform="translate(1.5 3)"/>
+  <!-- Anthrazit-Rand -->
+  <use href="#b" stroke="#2b2d33" stroke-width="30"/>
+  <!-- weiße Schrift -->
+  <use href="#b" stroke="url(#weiss)" stroke-width="17"/>
+  <!-- Glanzkante oben links -->
+  <use href="#b" stroke="#ffffff" stroke-width="5" opacity=".9" transform="translate(-2 -3)" style="mix-blend-mode:screen"/>
+  <!-- leichte Schattierung unten im Weiß -->
+  <use href="#b" stroke="#b9bcc4" stroke-width="5" opacity=".55" transform="translate(1.5 4)"/>
+  <use href="#b" stroke="url(#weiss)" stroke-width="9"/>
+</svg>

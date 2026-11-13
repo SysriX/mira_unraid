@@ -1,3 +1,5 @@
+<p align="center"><img src="app/web/logo.svg" alt="MIRA" width="360"></p>
+
 # MIRA
 
 **Mail · Identity · Routing · Access** – eine Weboberfläche für die ganze Infrastruktur: Benutzer im AD, Single Sign-on mit Authentik, Reverse-Proxy mit HAProxy und nginx, Postfächer in grommunio oder Exchange.

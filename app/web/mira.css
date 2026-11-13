@@ -117,3 +117,9 @@ pre .plus{color:var(--ok)}pre .minus{color:var(--bad)}pre .at{color:var(--akzent
   .oben .rechts > span.leise{display:none}
   td{white-space:nowrap}
 }
+
+/* Wortmarke */
+aside .logo{flex-direction:column;align-items:flex-start;gap:2px}
+aside .logo img.wortmarke{width:132px;height:auto;margin-left:-4px}
+aside .logo small{padding-left:2px}
+.mitte .logo-gross img.wortmarke{width:260px;height:auto}

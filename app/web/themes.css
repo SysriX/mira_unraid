@@ -2,7 +2,7 @@
    data-theme = Farben, data-stil = konsole (Look der Home-Assistant-Karten) oder flach. */
 
 /* ---------- Farben ---------- */
-:root,[data-theme=konsole]{--bg:#0d0e10;--karte:#1d1f23;--text:#e2e4e8;--leise:#9a9fa8;--rand:rgba(255,255,255,.07);--akzent:#ff8a3d;--akzent2:#ffb27a;
+:root,[data-theme=konsole]{--bg:#0d0e10;--karte:#1d1f23;--text:#e2e4e8;--leise:#9a9fa8;--rand:rgba(255,255,255,.07);--akzent:#ff8c1a;--akzent2:#ffb347;
   --ok:#3ddc84;--warn:#ffb347;--bad:#ff5252;--code:rgba(0,0,0,.45);--seite:#121316;--schatten:none;--auf-akzent:#1a0b02;color-scheme:dark}
 [data-theme=konsole-blau]{--akzent:#4dc3ff;--akzent2:#64b5f6;--auf-akzent:#04121a}
 [data-theme=konsole-gruen]{--akzent:#3ddc84;--akzent2:#4dc3ff;--auf-akzent:#06140c}
@@ -73,7 +73,7 @@ button.p{color:var(--auf-akzent)}
 
 /* Navigation */
 [data-stil=konsole] aside{background:linear-gradient(180deg,rgba(26,27,31,.96),rgba(12,13,15,.98));border-right:1px solid rgba(255,255,255,.05);box-shadow:1px 0 0 #000}
-[data-stil=konsole] aside .logo{text-transform:uppercase;letter-spacing:3px}
+[data-stil=konsole] aside .logo{letter-spacing:0}
 [data-stil=konsole] aside .logo small{text-transform:none;letter-spacing:.2px}
 [data-stil=konsole] aside a.nav{color:#c9ccd2;border-radius:9px}
 [data-stil=konsole] aside a.nav:hover{background:rgba(255,255,255,.04)}
