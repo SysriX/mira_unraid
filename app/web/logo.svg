@@ -4,7 +4,8 @@
     <g id="b" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10">
       <path d="M24 92V28L60 62L96 28V92"/>
       <path d="M124 28V92"/>
-      <path d="M150 92V28H183A18 18 0 0 1 183 64H150M180 64L204 92"/>
+      <path d="M150 92V28H183A18 18 0 0 1 183 64H150"/>
+      <path d="M166 64H176L204 92" stroke-linejoin="round"/>
       <path d="M228 92V40L240 28H272L284 40V92M228 64H284"/>
     </g>
     <!-- Rand: gleichmäßig rundum, oben etwas heller (Licht von oben) -->
