@@ -1,4 +1,4 @@
-<p align="center"><img src="app/web/logo.svg" alt="MIRA" width="360"></p>
+<p align="center"><img src="icon.svg" alt="" width="120"><br><img src="app/web/logo.svg" alt="MIRA" width="360"></p>
 
 # MIRA
 

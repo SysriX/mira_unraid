@@ -123,3 +123,5 @@ aside .logo{flex-direction:column;align-items:flex-start;gap:2px}
 aside .logo img.wortmarke{width:132px;height:auto;margin-left:-4px}
 aside .logo small{padding-left:2px}
 .mitte .logo-gross img.wortmarke{width:260px;height:auto}
+.mitte .logo-gross img.symbol{width:92px;height:92px;display:block;margin:0 auto 4px}
+.mitte .logo-gross img.wortmarke{display:block;margin:0 auto}

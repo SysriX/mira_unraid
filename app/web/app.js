@@ -231,7 +231,7 @@ function zeigeAnmeldung() {
     feld("Passwort", eingabe("passwort", "", { type: "password", autocomplete: "current-password", required: true })),
     h("button", { class: "p voll", type: "submit" }, "Anmelden"));
   leeren($("#app"), h("div", { class: "ecke" }, themeWahl()), h("div", { class: "mitte" },
-    h("div", { class: "logo-gross" }, h("img", { src: "/static/logo.svg", alt: "MIRA – Mail · Identity · Routing · Access", class: "wortmarke" })),
+    h("div", { class: "logo-gross" }, h("img", { src: "/static/icon.svg", alt: "", class: "symbol" }), h("img", { src: "/static/logo.svg", alt: "MIRA – Mail · Identity · Routing · Access", class: "wortmarke" })),
     h("div", { class: "karte" },
       fehler ? h("p", { style: { color: "var(--bad)" } }, fehler) : null,
       ARTEN.oidc ? [h("a", { href: "/auth/oidc/start" }, h("button", { class: "p voll", type: "button" }, `Anmelden mit ${ARTEN.oidc_name || "Authentik"}`)),
@@ -257,7 +257,7 @@ async function zeigeEinrichtung() {
   const box = h("div", { class: "karte" });
   const zeichnen = () => {
     leeren($("#app"), h("div", { class: "ecke" }, themeWahl()), h("div", { class: "mitte breit" },
-      h("div", { class: "logo-gross" }, h("img", { src: "/static/logo.svg", alt: "MIRA", class: "wortmarke" }), h("div", {}, `Einrichtung · Version ${st.version}`)),
+      h("div", { class: "logo-gross" }, h("img", { src: "/static/icon.svg", alt: "", class: "symbol" }), h("img", { src: "/static/logo.svg", alt: "MIRA", class: "wortmarke" }), h("div", {}, `Einrichtung · Version ${st.version}`)),
       h("div", { class: "schritte" }, titel.map((t, i) => h("div", { class: (i === E.schritt ? "an " : "") + (i < E.schritt ? "fertig" : "") }, h("b", {}, t), `Schritt ${i + 1}`))),
       box));
     leeren(box, SCHRITT[E.schritt](zeichnen));

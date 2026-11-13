@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="2 0 306 124" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
   <defs>
-    <!-- Buchstaben als Linien mit spitzen Ecken und eckigen Enden: M I R A -->
-    <g id="b" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10">
-      <path d="M30 92V30L60 66L90 30V92"/>
-      <path d="M122 30V92"/>
-      <path d="M154 92V30H186L198 42V56L186 68H154M180 68L202 92"/>
-      <path d="M228 92L256 30L284 92M240 72H272"/>
+    <!-- Buchstaben als Linien mit runden Ecken und Enden: M I R A -->
+    <g id="b" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 92V30L60 64L90 30V92"/>
+      <path d="M121 30V92"/>
+      <path d="M152 92V30H177C188 30 196 38 196 49C196 60 188 68 177 68H152M174 68L198 92"/>
+      <path d="M226 92L255 30L284 92M237 70H273"/>
     </g>
     <!-- Rahmen: oben heller, unten dunkler (wirkt aufgesetzt) -->
     <linearGradient id="rahmen" x1="0" y1="18" x2="0" y2="104" gradientUnits="userSpaceOnUse">
