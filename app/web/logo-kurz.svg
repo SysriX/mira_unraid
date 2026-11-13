@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="8 14 292 92" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
   <defs>
-    <!-- Buchstaben: futuristisch, abgeschrägte Ecken, weich gerundete Kanten -->
-    <g id="b" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M22 92V40L32 28L60 60L88 28L98 40V92"/>
+    <!-- Buchstaben: Bögen rund (R), Ecken und Enden eckig -->
+    <g id="b" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10">
+      <path d="M24 92V28L60 62L96 28V92"/>
       <path d="M124 28V92"/>
-      <path d="M150 92V28H188L200 40V52L188 64H150M182 64L204 92"/>
+      <path d="M150 92V28H183A18 18 0 0 1 183 64H150M180 64L204 92"/>
       <path d="M228 92V40L240 28H272L284 40V92M228 64H284"/>
     </g>
     <!-- Rand: gleichmäßig rundum, oben etwas heller (Licht von oben) -->
@@ -19,6 +19,15 @@
       <stop offset=".35" stop-color="#ffa62b"/>
       <stop offset="1" stop-color="#ff7000"/>
     </linearGradient>
+    <!-- Sonnenlicht von oben links -->
+    <radialGradient id="sonne" cx="70" cy="10" r="190" gradientUnits="userSpaceOnUse" gradientTransform="translate(70 10) scale(1 .55) translate(-70 -10)">
+      <stop offset="0" stop-color="#fff" stop-opacity=".6"/>
+      <stop offset=".35" stop-color="#fff" stop-opacity=".22"/>
+      <stop offset=".7" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="form" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="150">
+      <use href="#b" stroke="#fff" stroke-width="20"/>
+    </mask>
     <mask id="kern" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="150">
       <use href="#b" stroke="#fff" stroke-width="7"/>
     </mask>
@@ -33,7 +42,9 @@
   <g mask="url(#kern)">
     <use href="#b" stroke="#b54a00" stroke-width="9"/>
     <use href="#b" stroke="url(#seele)" stroke-width="9" transform="translate(0 .9)"/>
-    <use href="#b" stroke="#fff" stroke-opacity=".35" stroke-width="2.2" transform="translate(0 -1.8)"/>
   </g>
+
+  <!-- Glanz: als ob die Sonne in Weiß darauf scheint -->
+  <rect x="0" y="0" width="320" height="110" fill="url(#sonne)" mask="url(#form)"/>
 
 </svg>
