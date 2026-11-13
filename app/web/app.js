@@ -176,7 +176,7 @@ async function ladeModule() { MODULE = (await api("GET", "/api/module")).module;
 function rahmen() {
   const r = aktuelleRoute();
   const navi = h("aside", { id: "navi" },
-    h("div", { class: "logo" }, h("img", { src: "/static/logo.svg", alt: "MIRA", class: "wortmarke" }), h("small", {}, "Mail · Identity · Routing · Access")),
+    h("div", { class: "logo" }, h("img", { src: "/static/logo-kurz.svg", alt: "MIRA", class: "wortmarke" }), h("small", {}, "Mail · Identity · Routing · Access")),
     NAVI.map(([gruppe, eintraege]) => [gruppe ? h("h4", {}, gruppe) : null,
       eintraege.filter(([, , , rolle]) => !rolle || darf(rolle)).map(([k, t, typ]) => {
         const n = typ ? verbindungen(typ).length : null;
@@ -231,7 +231,7 @@ function zeigeAnmeldung() {
     feld("Passwort", eingabe("passwort", "", { type: "password", autocomplete: "current-password", required: true })),
     h("button", { class: "p voll", type: "submit" }, "Anmelden"));
   leeren($("#app"), h("div", { class: "ecke" }, themeWahl()), h("div", { class: "mitte" },
-    h("div", { class: "logo-gross" }, h("img", { src: "/static/logo.svg", alt: "MIRA", class: "wortmarke" }), h("div", {}, "Mail · Identity · Routing · Access")),
+    h("div", { class: "logo-gross" }, h("img", { src: "/static/logo.svg", alt: "MIRA – Mail · Identity · Routing · Access", class: "wortmarke" })),
     h("div", { class: "karte" },
       fehler ? h("p", { style: { color: "var(--bad)" } }, fehler) : null,
       ARTEN.oidc ? [h("a", { href: "/auth/oidc/start" }, h("button", { class: "p voll", type: "button" }, `Anmelden mit ${ARTEN.oidc_name || "Authentik"}`)),
