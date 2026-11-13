@@ -34,6 +34,8 @@
     </mask>
   </defs>
 
+  <!-- dünner weißer Rand außen um den dunklen Rand -->
+  <use href="#b" stroke="#ffffff" stroke-width="23"/>
   <!-- Rand, gleich breit an allen Seiten -->
   <use href="#b" stroke="url(#rahmen)" stroke-width="20"/>
   <!-- feine Fase innen am Rand -->

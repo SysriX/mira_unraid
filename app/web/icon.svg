@@ -48,6 +48,7 @@
     <linearGradient id="pAcc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffaaaa"/><stop offset=".5" stop-color="#ff5a5a"/><stop offset="1" stop-color="#b52222"/></linearGradient>
     <path id="m" d="M38 58V30L50 42L62 30V58" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10"/>
     <filter id="mschein" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="3.2"/></filter>
+    <filter id="mschatten" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="1.6"/></filter>
     <mask id="mkern" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" stroke="#fff" stroke-width="3.4"/></mask>
   </defs>
 
@@ -75,7 +76,11 @@
   <!-- leichter weißer Schein hinter dem M -->
   <use href="#m" stroke="#fff" stroke-width="13" opacity=".4" filter="url(#mschein)"/>
 
-  <!-- M wie der Schriftzug: gleichmäßiger Rand, orange Seele -->
+  <!-- Schlagschatten auf dem Schild: das M schwebt darüber -->
+  <use href="#m" stroke="#000" stroke-width="11.4" opacity=".7" transform="translate(1.8 3.4)" filter="url(#mschatten)"/>
+
+  <!-- M wie der Schriftzug: dünner weißer Außenrand, gleichmäßiger dunkler Rand, orange Seele -->
+  <use href="#m" stroke="#ffffff" stroke-width="11.2"/>
   <use href="#m" stroke="url(#anthrazit)" stroke-width="9.6"/>
   <use href="#m" stroke="#000" stroke-opacity=".35" stroke-width="5"/>
   <g mask="url(#mkern)">
