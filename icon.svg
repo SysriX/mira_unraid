@@ -1,35 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="MIRA">
   <defs>
-    <!-- Schild mit M in der Mitte, vier Dienste außen (Mail, Identity, Routing, Access) -->
-    <g id="s" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M50 19L76 27V50C76 65 66 75 50 82C34 75 24 65 24 50V27Z"/>
-      <path d="M38.5 62V41L50 54.5L61.5 41V62"/>
-      <path d="M17.5 17.5L24 24M82.5 17.5L76 24M17.5 82.5L29 72M82.5 82.5L71 72"/>
-      <circle cx="13" cy="13" r="5.5"/>
-      <circle cx="87" cy="13" r="5.5"/>
-      <circle cx="13" cy="87" r="5.5"/>
-      <circle cx="87" cy="87" r="5.5"/>
-    </g>
-    <linearGradient id="r" x1="0" y1="6" x2="0" y2="94" gradientUnits="userSpaceOnUse">
+    <!-- Schild: kantig, zwei Hälften (Licht links, Schatten rechts) mit Mittelgrat -->
+    <path id="schild" d="M50 6L83 16L79 52L50 78L21 52L17 16Z"/>
+    <linearGradient id="links" x1="0" y1="6" x2="0" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffc04d"/>
+      <stop offset=".55" stop-color="#ff9a1a"/>
+      <stop offset="1" stop-color="#ff7a00"/>
+    </linearGradient>
+    <linearGradient id="rechts" x1="0" y1="6" x2="0" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff9a1a"/>
+      <stop offset=".6" stop-color="#f06a00"/>
+      <stop offset="1" stop-color="#c84e00"/>
+    </linearGradient>
+    <linearGradient id="glanz" x1="0" y1="6" x2="0" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="anthrazit" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#555962"/>
       <stop offset="1" stop-color="#25272c"/>
     </linearGradient>
-    <linearGradient id="g" x1="0" y1="6" x2="0" y2="94" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#fff" stop-opacity=".5"/>
-      <stop offset=".46" stop-color="#fff" stop-opacity=".1"/>
-      <stop offset=".5" stop-color="#fff" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="w" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
-    <mask id="k" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-      <use href="#s" stroke="#fff" stroke-width="3.2"/>
-    </mask>
+    <!-- Kugeln für die vier Dienste -->
+    <radialGradient id="kMail" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#bfeaff"/><stop offset=".45" stop-color="#4dc3ff"/><stop offset="1" stop-color="#1676b8"/></radialGradient>
+    <radialGradient id="kIdent" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#c9f7da"/><stop offset=".45" stop-color="#3ddc84"/><stop offset="1" stop-color="#14864a"/></radialGradient>
+    <radialGradient id="kRout" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffe7a3"/><stop offset=".45" stop-color="#ffc233"/><stop offset="1" stop-color="#b9800a"/></radialGradient>
+    <radialGradient id="kAcc" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffc7c7"/><stop offset=".45" stop-color="#ff5a5a"/><stop offset="1" stop-color="#b52222"/></radialGradient>
+    <filter id="weich" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.3"/></filter>
+    <g id="leitung" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 66L28 60M29 86.5L39 72M71 86.5L61 72M85.5 66L72 60"/>
+    </g>
+    <path id="m" d="M37 52V27L50 42L63 27V52" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </defs>
-  <use href="#s" stroke="#000" stroke-width="10" opacity=".5" transform="translate(.8 1.6)" filter="url(#w)"/>
-  <use href="#s" stroke="#80858f" stroke-width="10" transform="translate(-.4 -.6)"/>
-  <use href="#s" stroke="url(#r)" stroke-width="9.6"/>
-  <g mask="url(#k)">
-    <use href="#s" stroke="#a7abb4" stroke-width="4.5"/>
-    <use href="#s" stroke="#fff" stroke-width="4.5" transform="translate(.4 .65)"/>
+
+  <!-- Bodenschatten -->
+  <use href="#schild" fill="#000" opacity=".5" transform="translate(1.2 2.6)" filter="url(#weich)"/>
+
+  <!-- Leitungen zu den Diensten (hinter dem Schild): Anthrazit mit weißer Seele -->
+  <use href="#leitung" stroke="#16171a" stroke-width="6.5" transform="translate(.4 .8)"/>
+  <use href="#leitung" stroke="url(#anthrazit)" stroke-width="6"/>
+  <use href="#leitung" stroke="#fff" stroke-width="2"/>
+
+  <!-- Schild: Rand, Hälften, Grat, Innenfase -->
+  <use href="#schild" fill="#2b2d33" stroke="#2b2d33" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M50 6L17 16L21 52L50 78Z" fill="url(#links)"/>
+  <path d="M50 6L83 16L79 52L50 78Z" fill="url(#rechts)"/>
+  <path d="M50 12.5L77.5 21L74.3 49.5L50 71.5L25.7 49.5L22.5 21Z" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M50 6V78" stroke="#fff" stroke-opacity=".35" stroke-width=".9"/>
+  <path d="M50 6V78" stroke="#000" stroke-opacity=".18" stroke-width=".9" transform="translate(.9 0)"/>
+  <path d="M50 6L17 16L19.5 38C30 34 40 33 50 33C60 33 70 34 80.5 38L83 16Z" fill="url(#glanz)"/>
+  <use href="#schild" fill="none" stroke="#3a3d44" stroke-width="2.2" stroke-linejoin="round"/>
+
+  <!-- M: Anthrazit-Rahmen, weiße Seele -->
+  <use href="#m" stroke="#000" stroke-width="10" opacity=".35" transform="translate(.6 1.2)"/>
+  <use href="#m" stroke="url(#anthrazit)" stroke-width="9.5"/>
+  <use href="#m" stroke="#fff" stroke-width="3.6"/>
+
+  <!-- vier Dienste: Mail, Identity, Routing, Access -->
+  <g stroke="#2b2d33" stroke-width="2">
+    <circle cx="10" cy="68" r="6.5" fill="url(#kMail)"/>
+    <circle cx="26" cy="91" r="6.5" fill="url(#kIdent)"/>
+    <circle cx="74" cy="91" r="6.5" fill="url(#kRout)"/>
+    <circle cx="90" cy="68" r="6.5" fill="url(#kAcc)"/>
   </g>
-  <use href="#s" stroke="url(#g)" stroke-width="9.6"/>
 </svg>
