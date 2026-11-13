@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="2 0 306 148" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
   <defs>
-    <!-- Buchstaben als Linien mit runden Ecken und Enden: M I R A -->
-    <g id="b" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M30 92V30L60 64L90 30V92"/>
-      <path d="M121 30V92"/>
-      <path d="M152 92V30H177C188 30 196 38 196 49C196 60 188 68 177 68H152M174 68L198 92"/>
-      <path d="M226 92L255 30L284 92M237 70H273"/>
+    <!-- Buchstaben als Linien futuristisch: breit, abgeschrägte Ecken, A mit flachem Dach: M I R A -->
+    <g id="b" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10">
+      <path d="M22 92V38L32 28L60 60L88 28L98 38V92"/>
+      <path d="M124 28V92"/>
+      <path d="M150 92V28H190L200 38V54L190 64H150M184 64L204 92"/>
+      <path d="M228 92V40L240 28H272L284 40V92M228 64H284"/>
     </g>
     <!-- Rahmen: oben heller, unten dunkler (wirkt aufgesetzt) -->
     <linearGradient id="rahmen" x1="0" y1="18" x2="0" y2="104" gradientUnits="userSpaceOnUse">
@@ -40,6 +40,10 @@
       <feGaussianBlur stdDeviation="1.6"/>
     </filter>
     <!-- Innenfläche der Schrift: so breit wie der Rand links und rechts -->
+    <mask id="schnitt" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="150">
+      <rect x="0" y="0" width="320" height="150" fill="#fff"/>
+      <rect x="0" y="45.2" width="320" height="1.6" fill="#000"/>
+    </mask>
     <mask id="kern" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="150">
       <use href="#b" stroke="#fff" stroke-width="6.5"/>
     </mask>
@@ -48,6 +52,7 @@
   <!-- ganz leichter weißer Schein hinter dem Logo -->
   <use href="#b" stroke="#fff" stroke-width="22" opacity=".14" filter="url(#schein)"/>
 
+  <g mask="url(#schnitt)">
   <!-- Schatten des Rahmens auf den Untergrund -->
   <use href="#b" stroke="#000" stroke-width="20" opacity=".55" transform="translate(1.5 3)" filter="url(#weich)"/>
 
@@ -66,8 +71,10 @@
   <use href="#b" stroke="url(#glanz)" stroke-width="19"/>
   <use href="#b" stroke="url(#streif)" stroke-width="19"/>
 
+  </g>
+
   <!-- ausgeschrieben -->
-  <text x="157" y="130" text-anchor="middle" textLength="250" lengthAdjust="spacing"
+  <text x="153" y="130" text-anchor="middle" textLength="262" lengthAdjust="spacing"
         font-family="'Segoe UI Semibold','Segoe UI',Arial,Helvetica,sans-serif" font-size="12.5" font-weight="600"
         fill="#ffffff" stroke="#25272c" stroke-width="2.6" stroke-linejoin="round" paint-order="stroke"
         letter-spacing="1.5">MAIL · IDENTITY · ROUTING · ACCESS</text>
