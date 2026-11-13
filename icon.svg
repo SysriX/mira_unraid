@@ -49,6 +49,15 @@
     <path id="m" d="M38 58V30L50 42L62 30V58" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10"/>
     <filter id="mschein" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="3.2"/></filter>
     <filter id="mschatten" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="1.6"/></filter>
+    <!-- Schild-Spiegelung: höher als beim M, an der Mittelkante geknickt (zwei schräge Flächen) -->
+    <mask id="sform" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#schild" fill="#fff"/></mask>
+    <clipPath id="slinks"><rect x="0" y="0" width="50" height="100"/></clipPath>
+    <clipPath id="srechts"><rect x="50" y="0" width="50" height="100"/></clipPath>
+    <linearGradient id="sspiegel" x1="0" y1="3" x2="0" y2="31" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".42"/>
+      <stop offset=".6" stop-color="#fff" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".06"/>
+    </linearGradient>
     <mask id="mform" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" stroke="#fff" stroke-width="9.6"/></mask>
     <linearGradient id="mspiegel" x1="0" y1="25" x2="0" y2="42" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#fff" stop-opacity=".62"/>
@@ -78,6 +87,16 @@
     <path d="M50 3L16 13L19.5 51Q25 68 50 85Z" fill="#fff" fill-opacity=".05"/>
     <use href="#schild" fill="url(#licht)"/>
     <use href="#schild" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width=".7" transform="translate(0 .6)"/>
+  </g>
+
+  <!-- Spiegelung der Sonne auf dem Schild: höher als auf dem M, folgt den zwei Schildflächen -->
+  <g mask="url(#sform)">
+    <g clip-path="url(#slinks)">
+      <ellipse cx="48" cy="-42" rx="54" ry="71" transform="rotate(-8 48 -42)" fill="url(#sspiegel)" filter="url(#mbogenweich)"/>
+    </g>
+    <g clip-path="url(#srechts)" opacity=".7">
+      <ellipse cx="48" cy="-42" rx="54" ry="71" transform="translate(0 -1.6) rotate(-8 48 -42)" fill="url(#sspiegel)" filter="url(#mbogenweich)"/>
+    </g>
   </g>
 
   <!-- leichter weißer Schein hinter dem M -->
