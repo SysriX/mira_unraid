@@ -22,6 +22,7 @@ Weitere Unraid-Pakete: [haproxy-unraid](https://github.com/SysriX/haproxy_unraid
 | **grommunio** | Domänen, Postfächer (anlegen, Speicherplatz, sperren, Passwort, Aliase, löschen), Übernahme aus LDAP, Systemstatus |
 | **Exchange** | Postfächer (aktivieren, trennen, Speichergrenzen, Adressen, Weiterleitung, im Adressbuch ausblenden, Vollzugriff/Senden als), freigegebene Postfächer/Räume, Verteiler, Datenbanken, akzeptierte Domänen, Zertifikate, Warteschlangen, **PowerShell** für alles Weitere |
 | **Protokoll** | wer hat wann was geändert – jede Aktion, jede Anmeldung, auch Fehlversuche |
+| **Aussehen** | Themes oben rechts: **Konsole** (dunkel, plastisch, Akzent Orange · Grün · Blau), Dunkel schlicht, Hell, wie das System – gemerkt im Browser |
 
 ## Anmeldung und Rechte
 

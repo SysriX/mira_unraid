@@ -154,6 +154,11 @@ function keineVerbindung(typ) {
     darf("admin") ? h("button", { class: "p", onclick: () => verbindungDialog({ typ }) }, `${m.titel} verbinden`) : h("p", {}, "Ein Admin muss die Verbindung anlegen."));
 }
 
+function themeWahl(klasse = "") {
+  return h("select", { class: "theme-wahl " + klasse, title: "Aussehen", onchange: e => themeSetzen(e.target.value) },
+    window.MIRA_THEMES.map(([k, t]) => h("option", { value: k, selected: k === themeAktuell() }, t)));
+}
+
 // ------------------------------------------------------------------ Navigation / Rahmen
 const NAVI = [
   ["", [["uebersicht", "Übersicht"]]],
@@ -181,7 +186,7 @@ function rahmen() {
   const oben = h("div", { class: "oben" },
     h("button", { class: "menu-knopf", onclick: () => $("#navi").classList.toggle("offen") }, "☰"),
     h("h1", { id: "titel" }, ""),
-    h("div", { class: "rechts" }, h("span", { class: "leise klein-t" }, ICH.anzeigename), marke(ICH.rolle, "akz"),
+    h("div", { class: "rechts" }, themeWahl(), h("span", { class: "leise klein-t" }, ICH.anzeigename), marke(ICH.rolle, "akz"),
       ICH.quelle === "lokal" ? h("button", { class: "klein", onclick: eigenesPasswort }, "Passwort") : null,
       h("button", { class: "klein", onclick: async () => { await api("POST", "/api/abmelden"); ICH = null; start(); } }, "Abmelden")));
   const main = h("main", { id: "inhalt" });
@@ -225,7 +230,7 @@ function zeigeAnmeldung() {
     feld("Benutzer", eingabe("benutzer", "", { autocomplete: "username", required: true })),
     feld("Passwort", eingabe("passwort", "", { type: "password", autocomplete: "current-password", required: true })),
     h("button", { class: "p voll", type: "submit" }, "Anmelden"));
-  leeren($("#app"), h("div", { class: "mitte" },
+  leeren($("#app"), h("div", { class: "ecke" }, themeWahl()), h("div", { class: "mitte" },
     h("div", { class: "logo-gross" }, h("img", { src: "/static/icon.svg", alt: "" }), h("h1", {}, "MIRA"), h("div", {}, "Mail · Identity · Routing · Access")),
     h("div", { class: "karte" },
       fehler ? h("p", { style: { color: "var(--bad)" } }, fehler) : null,
@@ -251,7 +256,7 @@ async function zeigeEinrichtung() {
   const titel = ["Code", "Datenbank", "Anmeldung", "Verbindungen", "Admin", "Fertig"];
   const box = h("div", { class: "karte" });
   const zeichnen = () => {
-    leeren($("#app"), h("div", { class: "mitte breit" },
+    leeren($("#app"), h("div", { class: "ecke" }, themeWahl()), h("div", { class: "mitte breit" },
       h("div", { class: "logo-gross" }, h("img", { src: "/static/icon.svg", alt: "" }), h("h1", {}, "MIRA"), h("div", {}, `Einrichtung · Version ${st.version}`)),
       h("div", { class: "schritte" }, titel.map((t, i) => h("div", { class: (i === E.schritt ? "an " : "") + (i < E.schritt ? "fertig" : "") }, h("b", {}, t), `Schritt ${i + 1}`))),
       box));
