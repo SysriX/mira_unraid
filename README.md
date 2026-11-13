@@ -43,7 +43,7 @@ Rein kommt nur, wer **in MIRA freigegeben** ist (Seite „Zugang“). Verzeichni
 
 1. Vorlage holen und in **Apps › Private** `MIRA` installieren:
    ```bash
-   mkdir -p /boot/config/plugins/community.applications/private/sysrix && curl -fsSL https://raw.githubusercontent.com/SysriX/mira/main/templates/mira.xml -o /boot/config/plugins/community.applications/private/sysrix/mira.xml
+   mkdir -p /boot/config/plugins/community.applications/private/sysrix && curl -fsSL https://raw.githubusercontent.com/SysriX/mira_unraid/main/templates/mira.xml -o /boot/config/plugins/community.applications/private/sysrix/mira.xml
    ```
 2. Netzwerk `br0` mit fester IP, Ordner `appdata/mira` → `/config`.
 3. Optional für nginx: dessen Konfigurations- und Webseiten-Ordner einbinden, und den Docker-Socket (nur dann kann MIRA `nginx -t`/`reload` im nginx-Container ausführen – das gibt MIRA Root-Rechte auf dem Host).

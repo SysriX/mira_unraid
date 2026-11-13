@@ -2,14 +2,14 @@
 <Container version="2">
   <Name>MIRA</Name>
   <Repository>ghcr.io/sysrix/mira:latest</Repository>
-  <Registry>https://github.com/SysriX/mira/pkgs/container/mira</Registry>
+  <Registry>https://github.com/SysriX/mira_unraid/pkgs/container/mira</Registry>
   <Network>br0</Network>
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/SysriX/mira/issues</Support>
-  <Project>https://github.com/SysriX/mira</Project>
-  <ReadMe>https://github.com/SysriX/mira/blob/main/README.md</ReadMe>
+  <Support>https://github.com/SysriX/mira_unraid/issues</Support>
+  <Project>https://github.com/SysriX/mira_unraid</Project>
+  <ReadMe>https://github.com/SysriX/mira_unraid/blob/main/README.md</ReadMe>
   <Overview>MIRA – Mail, Identity, Routing &amp; Access. Eine Weboberfläche für die ganze Infrastruktur: Benutzer, Gruppen, Passwörter und OUs im Windows- oder Samba-AD, Authentik (Anwendungen, Zugriff je Gruppe, Benutzer, Outposts), HAProxy über haproxy-ui (Dienste, Statistik, Zertifikate, Prüfen/Übernehmen mit Rücksprung), nginx-Hosts (Reverse-Proxy, Webseiten, PHP, Umleitungen – mit nginx -t und Rücksprung), grommunio und Exchange (Postfächer, Adressen, Speicherplatz, Berechtigungen, Verteiler).&#xD;
 &#xD;
 Abläufe über alle Dienste: „Neuer Mitarbeiter“ (AD-Konto + Gruppen + Postfach + Zugang in einem Rutsch) und „Mitarbeiter sperren“.&#xD;
@@ -18,8 +18,8 @@ Anmeldung über Authentik (OIDC), Domänen-Konto oder lokalen Notfall-Admin; nur
   <Category>Network:Management Tools:Security: Network:Proxy</Category>
   <ExtraSearchTerms>active directory samba ldap authentik haproxy nginx grommunio exchange benutzer verwaltung admin identity sso</ExtraSearchTerms>
   <WebUI>http://[IP]:[PORT:8080]/</WebUI>
-  <TemplateURL>https://raw.githubusercontent.com/SysriX/mira/main/templates/mira.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/SysriX/mira/main/icon.svg</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/SysriX/mira_unraid/main/templates/mira.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/SysriX/mira_unraid/main/icon.svg</Icon>
   <ExtraParams>--hostname mira --log-opt max-size=10m --log-opt max-file=3</ExtraParams>
   <PostArgs/>
   <Requires>Optional: MariaDB (sonst eingebaute SQLite), Authentik, haproxy-ui, nginx-Container, grommunio, Exchange mit WinRM.</Requires>
