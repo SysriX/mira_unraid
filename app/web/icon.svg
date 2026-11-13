@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="MIRA">
   <defs>
     <!-- Schild: dunkler Metallverlauf, schmaler oranger Rand, Grat -->
-    <path id="schild" d="M50 3L84 13L80.5 51Q75 68 50 85Q25 68 19.5 51L16 13Z"/>
+    <path id="schild" d="M50 6L84 15L80.5 48Q75 63 50 79Q25 63 19.5 48L16 15Z"/>
     <path id="feld" d="M50 12.2L76.6 20.2L74 48.5Q69.5 60.5 50 72.6Q30.5 60.5 26 48.5L23.4 20.2Z"/>
     <linearGradient id="randmetall" x1="20" y1="5" x2="80" y2="85" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ffd27a"/><stop offset=".3" stop-color="#ffa62b"/>
@@ -46,8 +46,9 @@
     <linearGradient id="pIdent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8f0c5"/><stop offset=".5" stop-color="#3ddc84"/><stop offset="1" stop-color="#14864a"/></linearGradient>
     <linearGradient id="pRout" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#ffc233"/><stop offset="1" stop-color="#b9800a"/></linearGradient>
     <linearGradient id="pAcc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffaaaa"/><stop offset=".5" stop-color="#ff5a5a"/><stop offset="1" stop-color="#b52222"/></linearGradient>
-    <path id="m" d="M38 58V30L50 42L62 30V58" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10"/>
+    <path id="m" d="M28 54.17L34.51 31.83L44.18 31.83Q44.56 31.83 44.94 32.01Q45.33 32.18 45.63 32.47Q45.93 32.76 46.16 33.12Q46.38 33.49 46.47 33.84L48.90 44.12L60.16 31.83L72 31.83L65.11 54.17L54.80 54.17L56.91 46.86L50.30 54.17L40.32 54.17L38.63 46.86L35.94 54.17Z"/>
     <filter id="mschein" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="3.2"/></filter>
+    <filter id="sschatten" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="120"><feGaussianBlur stdDeviation="2.2"/></filter>
     <filter id="mschatten" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="1.6"/></filter>
     <!-- Schild-Spiegelung: höher als beim M, an der Mittelkante geknickt (zwei schräge Flächen) -->
     <mask id="sform" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#schild" fill="#fff"/></mask>
@@ -58,14 +59,15 @@
       <stop offset=".6" stop-color="#fff" stop-opacity=".16"/>
       <stop offset="1" stop-color="#fff" stop-opacity=".06"/>
     </linearGradient>
-    <mask id="mform" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" stroke="#fff" stroke-width="9.6"/></mask>
-    <linearGradient id="mspiegel" x1="0" y1="25" x2="0" y2="42" gradientUnits="userSpaceOnUse">
+    <mask id="mform" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" fill="#fff" stroke="#fff" stroke-width="3.2" stroke-linejoin="miter"/></mask>
+    <mask id="mfase" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" fill="#fff" stroke="#000" stroke-width="1"/></mask>
+    <linearGradient id="mspiegel" x1="0" y1="30" x2="0" y2="44" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#fff" stop-opacity=".62"/>
       <stop offset=".55" stop-color="#fff" stop-opacity=".3"/>
       <stop offset="1" stop-color="#fff" stop-opacity=".14"/>
     </linearGradient>
     <filter id="mbogenweich" filterUnits="userSpaceOnUse" x="-20" y="-80" width="140" height="140"><feGaussianBlur stdDeviation=".3"/></filter>
-    <mask id="mkern" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" stroke="#fff" stroke-width="3.4"/></mask>
+    <mask id="mkern" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" fill="#fff" stroke="#000" stroke-width="2.2" stroke-linejoin="miter"/></mask>
   </defs>
 
   <!-- Leiterbahnen hinter dem Schild: Rand gleichmäßig, Seele in Dienstfarbe -->
@@ -76,6 +78,9 @@
     <use href="#lRout" stroke="#ffc233" stroke-width="2.4"/>
     <use href="#lAcc" stroke="#ff5a5a" stroke-width="2.4"/>
   </g>
+
+  <!-- Schatten des Schilds auf Leiterbahnen und Untergrund: Schild schwebt darüber -->
+  <use href="#schild" fill="#000" opacity=".75" transform="translate(1.6 3.6)" filter="url(#sschatten)"/>
 
   <!-- Schild: schmaler oranger Rand, ganzes Feld im dunklen Verlauf, Grat, Fase -->
   <use href="#schild" fill="url(#randmetall)" stroke="#1a1b1f" stroke-width="2.2" stroke-linejoin="round"/>
@@ -100,21 +105,21 @@
   </g>
 
   <!-- leichter weißer Schein hinter dem M -->
-  <use href="#m" stroke="#fff" stroke-width="13" opacity=".4" filter="url(#mschein)"/>
+  <use href="#m" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round" opacity=".4" filter="url(#mschein)"/>
 
   <!-- Schlagschatten auf dem Schild: das M schwebt darüber -->
-  <use href="#m" stroke="#000" stroke-width="11.4" opacity=".7" transform="translate(1.8 3.4)" filter="url(#mschatten)"/>
+  <use href="#m" fill="#000" stroke="#000" stroke-width="3.2" stroke-linejoin="round" opacity=".7" transform="translate(1.8 3.4)" filter="url(#mschatten)"/>
 
-  <!-- M wie der Schriftzug: gleichmäßiger dunkler Rand, orange Seele -->
-  <use href="#m" stroke="url(#anthrazit)" stroke-width="9.6"/>
-  <use href="#m" stroke="#000" stroke-opacity=".35" stroke-width="5"/>
+  <!-- m in Dream MMA: dunkler Rand, Fase, orange Seele -->
+  <use href="#m" fill="url(#anthrazit)" stroke="url(#anthrazit)" stroke-width="3.2" stroke-linejoin="miter"/>
+  <use href="#m" fill="#000" fill-opacity=".35" mask="url(#mfase)"/>
   <g mask="url(#mkern)">
-    <use href="#m" stroke="#b54a00" stroke-width="4.4"/>
-    <use href="#m" stroke="url(#orange)" stroke-width="4.4" transform="translate(0 .45)"/>
+    <use href="#m" fill="#b54a00"/>
+    <use href="#m" fill="url(#orange)" transform="translate(0 .45)"/>
   </g>
-  <!-- Spiegelung der schräg stehenden Sonne: Bogen in der oberen Hälfte des M -->
+  <!-- Spiegelung der schräg stehenden Sonne: Bogen in der oberen Hälfte des m -->
   <g mask="url(#mform)">
-    <ellipse cx="48" cy="-10" rx="42" ry="51" transform="rotate(-8 48 -10)" fill="url(#mspiegel)" filter="url(#mbogenweich)"/>
+    <ellipse cx="48" cy="-7" rx="42" ry="51" transform="rotate(-8 48 -7)" fill="url(#mspiegel)" filter="url(#mbogenweich)"/>
   </g>
 
   <!-- vier Dienste als eckige Lötflächen -->
