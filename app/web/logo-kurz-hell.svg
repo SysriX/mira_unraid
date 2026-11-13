@@ -2,6 +2,7 @@
   <defs>
     <!-- Buchstaben: Schrift Dream MMA (dafont, 100% kostenlos) als Pfade -->
     <path id="b" d="M41.50 97L20 97L36.70 40L39.90 40L47.70 74.10ZM42.40 27L70.70 27Q71.90 27 73.10 27.55Q74.30 28.10 75.25 29Q76.20 29.90 76.90 31.05Q77.60 32.20 77.90 33.30L85.50 65.50L120.80 27L157.90 27L136.30 97L104 97L110.60 74.10L89.90 97L58.60 97ZM181.87 97L152.87 97L173.37 27L203.27 27ZM230.14 97L197.34 97L219.84 27L295.44 27Q297.04 27 298.39 27.80Q299.74 28.60 300.79 30Q301.84 31.40 302.54 33.25Q303.24 35.10 303.64 37.10L303.64 37.10Q303.84 38.10 303.59 39.85Q303.34 41.60 302.84 43.70Q302.34 45.80 301.59 48.20Q300.84 50.60 300.14 53L300.14 53Q298.34 58.50 295.94 64.90L295.94 64.90L292.34 70.60Q291.54 71.80 290.09 72.60Q288.64 73.40 287.54 74.20L287.54 74.20Q286.74 74.70 285.59 74.80Q284.44 74.90 282.94 75.20L282.94 75.20Q282.64 75.30 282.94 76.25Q283.24 77.20 283.94 78.75Q284.64 80.30 285.69 82.25Q286.74 84.20 287.84 86.20L287.84 86.20Q290.44 91 294.04 97L294.04 97L261.84 97L250.34 74.90L243.94 74.90L248.94 58.20L269.84 57.90L274.24 44.60L246.54 44.60L230.14 97ZM393.00 97L418.50 97L356.80 27L331.60 27Q329.80 27 328.00 28.15Q326.20 29.30 325.10 30.70L325.10 30.70Q324.10 32 323.25 33.40Q322.40 34.80 321.80 36.20L321.80 36.20Q321.70 36.60 321.00 39.40Q320.30 42.20 319.30 46.50Q318.30 50.80 317.10 56.25Q315.90 61.70 314.60 67.30L314.60 67.30Q311.60 80.50 307.90 97L307.90 97L342.20 97L345.80 84.10L374.40 83.70Q370.40 79 367.10 75.20L367.10 75.20Q365.80 73.60 364.45 72.10Q363.10 70.60 362.05 69.40Q361.00 68.20 360.35 67.45Q359.70 66.70 359.70 66.70L359.70 66.70L349.80 66.70L353.40 52.10L393.00 97Z"/>
+    <path id="f" d="M36.70 40.00L40.50 27.00L42.40 27.00L45.40 40.00Z"/>
     <linearGradient id="rahmen" x1="0" y1="18" x2="0" y2="102" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#4b4f58"/><stop offset=".5" stop-color="#33363c"/><stop offset="1" stop-color="#202226"/>
     </linearGradient>
@@ -18,6 +19,7 @@
     <filter id="hinterweich" filterUnits="userSpaceOnUse" x="-50" y="-20" width="600" height="200"><feGaussianBlur stdDeviation="7"/></filter>
     <mask id="form" maskUnits="userSpaceOnUse" x="-50" y="0" width="600" height="150">
       <use href="#b" fill="#fff" stroke="#fff" stroke-width="9" stroke-linejoin="miter"/>
+      <use href="#f" fill="#fff" stroke="#fff" stroke-width="9" stroke-linejoin="miter"/>
     </mask>
     <mask id="fase" maskUnits="userSpaceOnUse" x="-50" y="0" width="600" height="150">
       <use href="#b" fill="#fff" stroke="#000" stroke-width="2.4" stroke-linejoin="miter"/>
@@ -29,10 +31,11 @@
 
   <!-- ganz leichter Schatten hinter dem Schriftzug: hell auf dunklem, dunkel auf hellem Untergrund -->
   <style>.hinterschein{fill:#000;stroke:#000;opacity:.5;transform:translate(0,4px)}</style>
-  <use href="#b" class="hinterschein" stroke-width="9" stroke-linejoin="round" filter="url(#hinterweich)"/>
+  <g filter="url(#hinterweich)"><use href="#b" class="hinterschein" stroke-width="9" stroke-linejoin="round"/><use href="#f" class="hinterschein" stroke-width="9" stroke-linejoin="round"/></g>
 
   <!-- Rand, gleich breit an allen Seiten -->
   <use href="#b" fill="url(#rahmen)" stroke="url(#rahmen)" stroke-width="9" stroke-linejoin="miter"/>
+  <use href="#f" fill="url(#rahmen)" stroke="url(#rahmen)" stroke-width="9" stroke-linejoin="miter"/>
   <!-- feine Fase innen am Rand -->
   <use href="#b" fill="#000" fill-opacity=".35" mask="url(#fase)"/>
   <!-- orange Seele, leicht gewölbt -->
