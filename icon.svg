@@ -49,6 +49,13 @@
     <path id="m" d="M38 58V30L50 42L62 30V58" fill="none" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10"/>
     <filter id="mschein" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="3.2"/></filter>
     <filter id="mschatten" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><feGaussianBlur stdDeviation="1.6"/></filter>
+    <mask id="mform" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" stroke="#fff" stroke-width="9.6"/></mask>
+    <linearGradient id="mspiegel" x1="0" y1="25" x2="0" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".62"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".14"/>
+    </linearGradient>
+    <filter id="mbogenweich" filterUnits="userSpaceOnUse" x="-20" y="-80" width="140" height="140"><feGaussianBlur stdDeviation=".3"/></filter>
     <mask id="mkern" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><use href="#m" stroke="#fff" stroke-width="3.4"/></mask>
   </defs>
 
@@ -79,13 +86,16 @@
   <!-- Schlagschatten auf dem Schild: das M schwebt darüber -->
   <use href="#m" stroke="#000" stroke-width="11.4" opacity=".7" transform="translate(1.8 3.4)" filter="url(#mschatten)"/>
 
-  <!-- M wie der Schriftzug: dünner weißer Außenrand, gleichmäßiger dunkler Rand, orange Seele -->
-  <use href="#m" stroke="#ffffff" stroke-width="11.2"/>
+  <!-- M wie der Schriftzug: gleichmäßiger dunkler Rand, orange Seele -->
   <use href="#m" stroke="url(#anthrazit)" stroke-width="9.6"/>
   <use href="#m" stroke="#000" stroke-opacity=".35" stroke-width="5"/>
   <g mask="url(#mkern)">
     <use href="#m" stroke="#b54a00" stroke-width="4.4"/>
     <use href="#m" stroke="url(#orange)" stroke-width="4.4" transform="translate(0 .45)"/>
+  </g>
+  <!-- Spiegelung der schräg stehenden Sonne: Bogen in der oberen Hälfte des M -->
+  <g mask="url(#mform)">
+    <ellipse cx="48" cy="-10" rx="42" ry="51" transform="rotate(-8 48 -10)" fill="url(#mspiegel)" filter="url(#mbogenweich)"/>
   </g>
 
   <!-- vier Dienste als eckige Lötflächen -->

@@ -26,6 +26,13 @@
       <stop offset=".35" stop-color="#fff" stop-opacity=".22"/>
       <stop offset=".7" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
+    <!-- Spiegelbogen: oben kräftig, zur Bogenkante hin auslaufend -->
+    <linearGradient id="spiegel" x1="0" y1="14" x2="0" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".62"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".14"/>
+    </linearGradient>
+    <filter id="bogenweich" filterUnits="userSpaceOnUse" x="-100" y="-200" width="520" height="350"><feGaussianBlur stdDeviation=".7"/></filter>
     <mask id="form" maskUnits="userSpaceOnUse" x="0" y="0" width="320" height="150">
       <use href="#b" stroke="#fff" stroke-width="20"/>
     </mask>
@@ -34,8 +41,6 @@
     </mask>
   </defs>
 
-  <!-- dünner weißer Rand außen um den dunklen Rand -->
-  <use href="#b" stroke="#ffffff" stroke-width="23"/>
   <!-- Rand, gleich breit an allen Seiten -->
   <use href="#b" stroke="url(#rahmen)" stroke-width="20"/>
   <!-- feine Fase innen am Rand -->
@@ -48,6 +53,10 @@
   </g>
 
   <!-- Glanz: als ob die Sonne in Weiß darauf scheint -->
-  <rect x="0" y="0" width="320" height="110" fill="url(#sonne)" mask="url(#form)"/>
+  <rect x="0" y="0" width="320" height="110" fill="url(#sonne)" opacity=".6" mask="url(#form)"/>
+  <!-- Spiegelung der schräg stehenden Sonne: Bogen in der oberen Hälfte -->
+  <g mask="url(#form)">
+    <ellipse cx="150" cy="-62" rx="230" ry="122" transform="rotate(-5 150 -62)" fill="url(#spiegel)" filter="url(#bogenweich)"/>
+  </g>
 
 </svg>
