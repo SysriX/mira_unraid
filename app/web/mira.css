@@ -126,5 +126,7 @@ aside .logo small{padding-left:2px}
 .mitte .logo-gross img.symbol{width:92px;height:92px;display:block;margin:0 auto 4px}
 .mitte .logo-gross img.wortmarke{display:block;margin:0 auto}
 /* Logo: weicher Schatten passend zum Untergrund (dunkel: hell, hell: dunkel) */
-img.wortmarke,img.symbol{filter:drop-shadow(0 0 8px rgba(255,255,255,.16)) drop-shadow(0 2px 3px rgba(0,0,0,.4))}
-[data-theme=hell] img.wortmarke,[data-theme=hell] img.symbol{filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
+img.symbol{filter:drop-shadow(0 0 8px rgba(255,255,255,.16)) drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+[data-theme=hell] img.symbol{filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
+/* Wortmarke: Schatten steckt in der Datei – helle bzw. dunkle Fassung je nach Theme */
+[data-theme=hell] img.nur-dunkel,:root:not([data-theme=hell]) img.nur-hell{display:none!important}

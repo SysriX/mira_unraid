@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4.0 6 427.8 153" role="img" aria-label="MIRA – Mail · Identity · Routing · Access">
+  <defs>
+    <!-- Buchstaben: Schrift Dream MMA (dafont, 100% kostenlos) als Pfade -->
+    <path id="b" d="M20 97L40.40 27L70.70 27Q71.90 27 73.10 27.55Q74.30 28.10 75.25 29Q76.20 29.90 76.90 31.05Q77.60 32.20 77.90 33.30L85.50 65.50L120.80 27L157.90 27L136.30 97L104 97L110.60 74.10L89.90 97L58.60 97L53.30 74.10L44.90 97ZM181.50 97L152.50 97L173 27L202.90 27ZM232.20 97L199.40 97L221.90 27L297.50 27Q299.10 27 300.45 27.80Q301.80 28.60 302.85 30Q303.90 31.40 304.60 33.25Q305.30 35.10 305.70 37.10L305.70 37.10Q305.90 38.10 305.65 39.85Q305.40 41.60 304.90 43.70Q304.40 45.80 303.65 48.20Q302.90 50.60 302.20 53L302.20 53Q300.40 58.50 298 64.90L298 64.90L294.40 70.60Q293.60 71.80 292.15 72.60Q290.70 73.40 289.60 74.20L289.60 74.20Q288.80 74.70 287.65 74.80Q286.50 74.90 285 75.20L285 75.20Q284.70 75.30 285 76.25Q285.30 77.20 286 78.75Q286.70 80.30 287.75 82.25Q288.80 84.20 289.90 86.20L289.90 86.20Q292.50 91 296.10 97L296.10 97L263.90 97L252.40 74.90L246 74.90L251 58.20L271.90 57.90L276.30 44.60L248.60 44.60L232.20 97ZM330.70 97L305.20 97L366.90 27L392.10 27Q393.90 27 395.70 28.15Q397.50 29.30 398.60 30.70L398.60 30.70Q399.60 32 400.45 33.40Q401.30 34.80 401.90 36.20L401.90 36.20Q402 36.60 402.70 39.40Q403.40 42.20 404.40 46.50Q405.40 50.80 406.60 56.25Q407.80 61.70 409.10 67.30L409.10 67.30Q412.10 80.50 415.80 97L415.80 97L381.50 97L377.90 84.10L349.30 83.70Q353.30 79 356.60 75.20L356.60 75.20Q357.90 73.60 359.25 72.10Q360.60 70.60 361.65 69.40Q362.70 68.20 363.35 67.45Q364 66.70 364 66.70L364 66.70L373.90 66.70L370.30 52.10L330.70 97Z"/>
+    <linearGradient id="rahmen" x1="0" y1="18" x2="0" y2="102" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4b4f58"/><stop offset=".5" stop-color="#33363c"/><stop offset="1" stop-color="#202226"/>
+    </linearGradient>
+    <linearGradient id="seele" x1="0" y1="26" x2="0" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd27a"/><stop offset=".35" stop-color="#ffa62b"/><stop offset="1" stop-color="#ff7000"/>
+    </linearGradient>
+    <radialGradient id="sonne" cx="70" cy="10" r="190" gradientUnits="userSpaceOnUse" gradientTransform="translate(70 10) scale(1 .55) translate(-70 -10)">
+      <stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".35" stop-color="#fff" stop-opacity=".22"/><stop offset=".7" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="spiegel" x1="0" y1="14" x2="0" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".62"/><stop offset=".55" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity=".14"/>
+    </linearGradient>
+    <filter id="bogenweich" filterUnits="userSpaceOnUse" x="-100" y="-300" width="700" height="450"><feGaussianBlur stdDeviation=".7"/></filter>
+    <filter id="hinterweich" filterUnits="userSpaceOnUse" x="-50" y="-20" width="600" height="200"><feGaussianBlur stdDeviation="4"/></filter>
+    <mask id="form" maskUnits="userSpaceOnUse" x="-50" y="0" width="600" height="150">
+      <use href="#b" fill="#fff" stroke="#fff" stroke-width="9" stroke-linejoin="miter"/>
+    </mask>
+    <mask id="fase" maskUnits="userSpaceOnUse" x="-50" y="0" width="600" height="150">
+      <use href="#b" fill="#fff" stroke="#000" stroke-width="2.4" stroke-linejoin="miter"/>
+    </mask>
+    <mask id="kern" maskUnits="userSpaceOnUse" x="-50" y="0" width="600" height="150">
+      <use href="#b" fill="#fff" stroke="#000" stroke-width="5" stroke-linejoin="miter"/>
+    </mask>
+  </defs>
+
+  <!-- ganz leichter Schatten hinter dem Schriftzug: hell auf dunklem, dunkel auf hellem Untergrund -->
+  <style>.hinterschein{fill:#000;stroke:#000;opacity:.3;transform:translate(0,3px)}</style>
+  <use href="#b" class="hinterschein" stroke-width="9" stroke-linejoin="round" filter="url(#hinterweich)"/>
+
+  <!-- Rand, gleich breit an allen Seiten -->
+  <use href="#b" fill="url(#rahmen)" stroke="url(#rahmen)" stroke-width="9" stroke-linejoin="miter"/>
+  <!-- feine Fase innen am Rand -->
+  <use href="#b" fill="#000" fill-opacity=".35" mask="url(#fase)"/>
+  <!-- orange Seele, leicht gewölbt -->
+  <g mask="url(#kern)">
+    <use href="#b" fill="#b54a00"/>
+    <use href="#b" fill="url(#seele)" transform="translate(0 .9)"/>
+  </g>
+  <!-- Glanz -->
+  <rect x="-50" y="0" width="600" height="110" fill="url(#sonne)" opacity=".6" mask="url(#form)"/>
+  <g mask="url(#form)">
+    <ellipse cx="218" cy="-110" rx="364" ry="168" transform="rotate(-5 218 -110)" fill="url(#spiegel)" filter="url(#bogenweich)"/>
+  </g>
+
+  <!-- ausgeschrieben -->
+  <text x="23.0" y="123" textLength="389.8" font-family="'Segoe UI Semibold','Segoe UI',Arial,Helvetica,sans-serif" font-size="14" font-weight="600"
+        fill="#ffffff" stroke="#25272c" stroke-width="2.8" stroke-linejoin="round" paint-order="stroke" letter-spacing="1.5" lengthAdjust="spacing">MAIL · IDENTITY · ROUTING · ACCESS</text>
+  <!-- Trennlinie -->
+  <path d="M84.4 133.4H351.4" stroke="#25272c" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M84.4 133.4H351.4" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+  <text x="145.9" y="153" textLength="144.0" font-family="'Segoe UI Semibold','Segoe UI',Arial,Helvetica,sans-serif" font-size="14" font-weight="600"
+        fill="#ffffff" stroke="#25272c" stroke-width="2.8" stroke-linejoin="round" paint-order="stroke" letter-spacing="1.5" lengthAdjust="spacing">MANAGEMENT</text>
+</svg>
