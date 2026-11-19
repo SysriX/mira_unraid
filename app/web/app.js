@@ -165,8 +165,7 @@ const NAVI = [
   ["Identität", [["benutzer", "Benutzer", "ad"], ["gruppen", "Gruppen", "ad"], ["neu", "Neuer Mitarbeiter", "ad"]]],
   ["Dienste", [["authentik", "Authentik", "authentik"], ["haproxy", "HAProxy", "haproxy"], ["nginx", "nginx", "nginx"],
                ["grommunio", "grommunio", "grommunio"], ["exchange", "Exchange", "exchange"]]],
-  ["Netzwerk", [["wireguard", "WireGuard", "wireguard"]]],
-  ["MIRA", [["verbindungen", "Verbindungen"], ["zugang", "Zugang", null, "admin"], ["einstellungen", "Einstellungen", null, "admin"],
+  ["MIRA", [["verbindungen", "Verbindungen"], ["zugang", "Zugang", null, "admin"], ["plugins", "Plugins", null, "admin"], ["einstellungen", "Einstellungen", null, "admin"],
             ["protokoll", "Protokoll", null, "operator"]]],
 ];
 
@@ -177,12 +176,14 @@ async function ladeModule() { MODULE = (await api("GET", "/api/module")).module;
 function rahmen() {
   const r = aktuelleRoute();
   const navi = h("aside", { id: "navi" },
-    h("div", { class: "logo" }, h("img", { src: "/static/logo-kurz-dunkel.svg", alt: "MIRA", class: "wortmarke nur-dunkel" }), h("img", { src: "/static/logo-kurz-hell.svg", alt: "MIRA", class: "wortmarke nur-hell" }), h("small", {}, "Mail · Identity · Routing · Access")),
-    NAVI.map(([gruppe, eintraege]) => [gruppe ? h("h4", {}, gruppe) : null,
-      eintraege.filter(([, , , rolle]) => !rolle || darf(rolle)).map(([k, t, typ]) => {
+    h("div", { class: "logo" }, h("img", { src: "/static/logo-kurz-dunkel.svg", alt: "MIRA", class: "wortmarke nur-dunkel" }), h("img", { src: "/static/logo-kurz-hell.svg", alt: "MIRA", class: "wortmarke nur-hell" }), h("small", {}, "Management · Identity · Routing · Access")),
+    naviGruppen().map(([gruppe, eintraege]) => [gruppe ? h("h4", {}, gruppe) : null,
+      eintraege.filter(([, , , rolle]) => !rolle || darf(rolle)).map(([k, t, typ, , extra]) => {
         const n = typ ? verbindungen(typ).length : null;
-        return h("a", { class: "nav" + (r.name === k ? " an" : "") + (typ && !n ? " aus" : ""), href: "#" + k,
-          onclick: () => $("#navi").classList.remove("offen") }, t, typ && !n ? h("span", { class: "zahl" }, "–") : null);
+        const aus = (typ && !n) || (extra && extra.aus);
+        return h("a", { class: "nav" + (r.name === k ? " an" : "") + (aus ? " aus" : ""), href: "#" + k,
+          onclick: () => $("#navi").classList.remove("offen") }, extra && extra.icon ? h("img", { src: extra.icon, alt: "", class: "nav-icon" }) : null, t,
+          aus ? h("span", { class: "zahl" }, extra && extra.zeichen || "–") : null);
       })]));
   const oben = h("div", { class: "oben" },
     h("button", { class: "menu-knopf", onclick: () => $("#navi").classList.toggle("offen") }, "☰"),
@@ -207,7 +208,15 @@ async function zeige() {
   try { await a.zeigen(main, r.q); }
   catch (e) { leeren(main, h("div", { class: "karte" }, h("h2", {}, punkt("bad"), "Fehler"), h("pre", {}, e.message))); }
 }
-window.addEventListener("hashchange", () => { if (ICH && !location.hash.startsWith("#anmelden")) zeige(); });
+window.addEventListener("hashchange", () => {
+  document.querySelectorAll(".dialog-hg").forEach(d => d.remove());   // a dialog never outlives its page
+  if (ICH && !location.hash.startsWith("#anmelden")) zeige();
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  const d = [...document.querySelectorAll(".dialog-hg")].pop();
+  if (d) d.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+});
 
 async function start() {
   try {
@@ -215,6 +224,7 @@ async function start() {
     if (!ARTEN.eingerichtet) return zeigeEinrichtung();
     ICH = await api("GET", "/api/ich", undefined, { still: true });
     await ladeModule();
+    await ladePlugins();
     if (location.hash.startsWith("#anmelden")) location.hash = "#uebersicht";
     zeige();
   } catch (e) { zeigeAnmeldung(); }
@@ -232,7 +242,7 @@ function zeigeAnmeldung() {
     feld("Passwort", eingabe("passwort", "", { type: "password", autocomplete: "current-password", required: true })),
     h("button", { class: "p voll", type: "submit" }, "Anmelden"));
   leeren($("#app"), h("div", { class: "ecke" }, themeWahl()), h("div", { class: "mitte" },
-    h("div", { class: "logo-gross" }, h("img", { src: "/static/icon.svg", alt: "", class: "symbol" }), h("img", { src: "/static/logo-dunkel.svg", alt: "MIRA – Mail · Identity · Routing · Access", class: "wortmarke nur-dunkel" }), h("img", { src: "/static/logo-hell.svg", alt: "MIRA – Mail · Identity · Routing · Access", class: "wortmarke nur-hell" })),
+    h("div", { class: "logo-gross" }, h("img", { src: "/static/icon.svg", alt: "", class: "symbol" }), h("img", { src: "/static/logo-dunkel.svg", alt: "MIRA – Management · Identity · Routing · Access", class: "wortmarke nur-dunkel" }), h("img", { src: "/static/logo-hell.svg", alt: "MIRA – Management · Identity · Routing · Access", class: "wortmarke nur-hell" })),
     h("div", { class: "karte" },
       fehler ? h("p", { style: { color: "var(--bad)" } }, fehler) : null,
       ARTEN.oidc ? [h("a", { href: "/auth/oidc/start" }, h("button", { class: "p voll", type: "button" }, `Anmelden mit ${ARTEN.oidc_name || "Authentik"}`)),
@@ -458,7 +468,7 @@ ANSICHT.uebersicht = { titel: "Übersicht", zeigen: async main => {
     h("div", { class: "kachel" }, h("div", { class: "w" }, d.verbindungen.length), h("div", { class: "l" }, "Verbindungen")),
     h("div", { class: "kachel" }, h("div", { class: "w" }, d.zugang), h("div", { class: "l" }, "Personen mit Zugang zu MIRA")),
     h("div", { class: "kachel" }, h("div", { class: "w" }, d.fehlanmeldungen_heute), h("div", { class: "l" }, "Fehlanmeldungen heute")));
-  const ziel = { ad: "benutzer", authentik: "authentik", haproxy: "haproxy", nginx: "nginx", grommunio: "grommunio", exchange: "exchange", wireguard: "wireguard" };
+  const ziel = { ad: "benutzer", authentik: "authentik", haproxy: "haproxy", nginx: "nginx", grommunio: "grommunio", exchange: "exchange" };
   const dienste = h("div", { class: "kacheln" }, d.verbindungen.map(v => {
     const ok = v.status.startsWith("ok"), fehl = v.status.startsWith("fehler");
     return h("div", { class: "kachel klick", onclick: () => { localStorage.setItem("mira.verb." + v.typ, v.id); location.hash = "#" + (ziel[v.typ] || "verbindungen"); } },

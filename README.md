@@ -2,13 +2,13 @@
 
 # MIRA
 
-**Mail · Identity · Routing · Access** – eine Weboberfläche für die ganze Infrastruktur: Benutzer im AD, Single Sign-on mit Authentik, Reverse-Proxy mit HAProxy und nginx, Postfächer in grommunio oder Exchange.
+**Management · Identity · Routing · Access** – die Zentrale für die ganze Infrastruktur: Benutzer im AD, Single Sign-on mit Authentik, Reverse-Proxy mit HAProxy und nginx, Postfächer in grommunio oder Exchange – und über **Plugins** jedes weitere Programm (z. B. [VERA](https://github.com/SysriX/vera_unraid) für WireGuard), so als würde man direkt darin arbeiten.
 
 Weitere Unraid-Pakete: [haproxy-unraid](https://github.com/SysriX/haproxy_unraid), [haproxy-ui](https://github.com/SysriX/haproxy-ui_unraid), [certwarden-unraid](https://github.com/SysriX/certwarden_unraid)
 
 `ghcr.io/sysrix/mira:latest`
 
-> **Stand 0.1.0:** erste Version. Einrichtung, Anmeldung, Verbindungen, HAProxy (über haproxy-ui) und nginx sind lokal getestet. **AD/Samba, Authentik, grommunio und Exchange sind noch nicht gegen echte Server getestet.**
+> **Stand 0.3.0:** Plugin-System (getestet mit dem VERA-Plugin gegen eine nachgebaute OPNsense). **Stand 0.1.0:** erste Version. Einrichtung, Anmeldung, Verbindungen, HAProxy (über haproxy-ui) und nginx sind lokal getestet. **AD/Samba, Authentik, grommunio und Exchange sind noch nicht gegen echte Server getestet.**
 
 ## Was es kann
 
@@ -23,7 +23,7 @@ Weitere Unraid-Pakete: [haproxy-unraid](https://github.com/SysriX/haproxy_unraid
 | **nginx** | Hosts als Reverse-Proxy, Webseite, PHP oder Umleitung – HTTPS, HTTP→HTTPS, WebSockets, PROXY-Protokoll, echte Client-IP, Upload-Grenze, Sicherheits-Header, weitere Pfade, eigene Zeilen; **Vorschau**; Speichern = Datei schreiben → `nginx -t` → bei Fehler alter Stand zurück → `reload`. Dateien statischer Seiten hochladen. Von Hand geschriebene Dateien als Text bearbeiten |
 | **grommunio** | Domänen, Postfächer (anlegen, Speicherplatz, sperren, Passwort, Aliase, löschen), Übernahme aus LDAP, Systemstatus |
 | **Exchange** | Postfächer (aktivieren, trennen, Speichergrenzen, Adressen, Weiterleitung, im Adressbuch ausblenden, Vollzugriff/Senden als), freigegebene Postfächer/Räume, Verteiler, Datenbanken, akzeptierte Domänen, Zertifikate, Warteschlangen, **PowerShell** für alles Weitere |
-| **WireGuard** (OPNsense) | vorhandene Instanzen und Zugänge **importieren** (in die MIRA-Datenbank), neue Geräte anlegen und **sofort aktivieren**, vorhandene `.conf` übernehmen, Konfiguration ansehen (ohne Schlüssel), mit **QR-Code**, als **Datei** oder **Freigabelink** (zeitlich begrenzt, ohne Anmeldung), Schlüssel erneuern, Online-Status und Datenmenge; **Standortverbindungen** zwischen zwei OPNsense (eigene Instanz, bestehende Zugänge bleiben unberührt). Gleicher Kern wie die eigenständige App [VERA](https://github.com/SysriX/vera_unraid) |
+| **Plugins** | andere Programme in MIRA bedienen: Plugin-Ordner kopieren → freigeben → Assistent sucht das Programm im Netz (oder Adresse eingeben) → einmal mit dessen Admin anmelden → fertig. Beispiel **VERA** (WireGuard auf der OPNsense: Zugänge, neue Geräte, QR/Datei/Freigabelink, Standortverbindungen). Siehe unten und [docs/PLUGINS.md](docs/PLUGINS.md) |
 | **Protokoll** | wer hat wann was geändert – jede Aktion, jede Anmeldung, auch Fehlversuche |
 | **Aussehen** | Themes oben rechts: **Konsole** (dunkel, plastisch, Akzent Orange · Grün · Blau), Dunkel schlicht, Hell, wie das System – gemerkt im Browser |
 
@@ -72,8 +72,22 @@ Weitere Dienste (HAProxy, nginx, grommunio, Exchange, weitere ADs) danach unter 
 | HAProxy | [haproxy-ui](https://github.com/SysriX/haproxy-ui_unraid) mit Adresse und `UI_PASS` |
 | nginx | Konfigurationsordner in MIRA eingebunden; für Prüfen/Neu laden Docker-Socket + Containername |
 | grommunio | Admin-Konto der Admin-Oberfläche (Port 8443) |
-| WireGuard | OPNsense-Benutzer mit **API-Schlüssel** (Key + Secret), Rechte „VPN: WireGuard“; für Standortverbindungen zusätzlich Firewall-Regeln/Aliase (Automation). Tabellen `wg_*` liegen in MIRAs Datenbank |
+| Plugins | das jeweilige Programm (z. B. VERA ab 1.1.0) mit einem Admin-Konto für die einmalige Kopplung |
 | Exchange | **WinRM** auf dem Exchange-Server (`winrm quickconfig`), Konto in „Organization Management“ bzw. „Recipient Management“; Standard: WinRM + Snap-In mit NTLM. Alternativ der offizielle Endpunkt `/PowerShell` (meist Kerberos) |
+
+## Plugins
+
+Ein Plugin bindet ein anderes Programm in MIRA ein. Es liegt als Ordner mit `plugin.json` vor – SysriX-Programme liefern ihn im eigenen Repository mit (VERA: `mira-plugin/vera/`).
+
+1. Plugin-Ordner nach **`/config/plugins/`** kopieren (z. B. `/config/plugins/vera/`).
+2. MIRA › **Plugins** › „Ordner neu einlesen“ → das Plugin erscheint als **neu** und unter seinem Namen in der Navigation. Ein Admin gibt es frei (es bringt eigenen Programmcode mit). Ändern sich seine Dateien, muss es neu freigegeben werden.
+3. Auf den Knopf (z. B. **VERA**) klicken → **Einrichtungs-Assistent**: sucht das Programm im eigenen Netz (oder in angegebenen Netzen, auch mit Port: `192.168.10.0/24:8443`), alternativ Adresse eingeben.
+4. Einmal mit einem **Admin des Programms** anmelden. Das Programm stellt MIRA dafür einen eigenen **Schlüssel** aus; Benutzer und Passwort werden nicht gespeichert. Im Programm unter „Verbundene Apps“ jederzeit widerrufbar.
+5. Danach erscheinen dessen Seiten in der Navigation (VERA: WireGuard, Firewalls, Benutzer, Protokoll) – mit derselben Oberfläche wie im Programm selbst.
+
+Rechte: MIRA-**Leser** sehen nur, **Operatoren** dürfen ändern, nur MIRA-**Admins** bekommen die Admin-Funktionen des Programms. Beim Verbinden lässt sich der Schlüssel zusätzlich auf „Bearbeiten“ oder „Nur lesen“ begrenzen. Im Protokoll des Programms steht, welcher MIRA-Benutzer etwas geändert hat.
+
+Mehrere Installationen desselben Programms (z. B. eine VERA je Standort) lassen sich nebeneinander verbinden; oben in der Ansicht wird umgeschaltet.
 
 ## Umgebungsvariablen
 
@@ -84,6 +98,7 @@ Weitere Dienste (HAProxy, nginx, grommunio, Exchange, weitere ADs) danach unter 
 | `MIRA_PROXY_IPS` | `127.0.0.1` | IPs des Reverse-Proxys, dessen `X-Forwarded-*` geglaubt wird |
 | `MIRA_KEY` | – | eigener Schlüssel statt `schluessel.key` |
 | `MIRA_SETUP_TOKEN` | – | fester Einrichtungs-Code |
+| `MIRA_PLUGINS` | `/config/plugins` | Plugin-Ordner |
 | `MIRA_TLS_CERT` / `MIRA_TLS_KEY` | – | MIRA selbst per HTTPS (sonst über HAProxy) |
 
 ## Sicherheit
@@ -91,16 +106,16 @@ Weitere Dienste (HAProxy, nginx, grommunio, Exchange, weitere ADs) danach unter 
 - MIRA hat Admin-Zugriff auf AD, Authentik, Proxy und Mail – **nur intern** erreichbar machen (in HAProxy Zugang „nur intern“) und Anmeldung über Authentik mit MFA.
 - Schreibende Aufrufe nur mit eigenem Header (CSRF-Schutz), Sitzungs-Cookie `HttpOnly` + `SameSite=Lax`, strenge Content-Security-Policy, 5 Fehlversuche → 5 Minuten Pause.
 - Jede Änderung steht im Protokoll.
+- Plugins laufen erst nach Freigabe durch einen Admin (Fingerabdruck aller Dateien); ihre Aufrufe gehen nur über MIRA (`/api/p/<Verbindung>/…`), nur auf die im Plugin freigegebenen Pfade, und der Schlüssel des Programms erreicht nie den Browser.
 
 ## Geplant
 
 - **Rechte-Datenbank**: Dienste, Rechte und Rollen in MariaDB, MIRA schreibt daraus die Gruppen ins AD und die Attribute nach Authentik.
 - Weitere Module nach Bedarf (z. B. Nextcloud, Home Assistant).
-- WireGuard: Zugriffsregeln je Standortverbindung (z. B. nur ein Rechner auf bestimmte Netze der Gegenseite).
+- Plugins für weitere SysriX-Programme (ALMA, NINA, LIMA …) und fremde Programme (eigener Python-Teil im Plugin).
+- Die eingebauten Module (AD, Authentik, HAProxy, nginx, grommunio, Exchange) als mitgelieferte Plugins nach demselben Muster.
 
 ## Entwicklung
-
-`app/wgcore/` ist eine Kopie aus dem VERA-Repository (dort zuerst ändern, dann herüberkopieren – ebenso `app/web/wireguard.js` und `wireguard.css`).
 
 ```bash
 pip install -r requirements.txt

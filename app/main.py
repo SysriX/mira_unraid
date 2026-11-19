@@ -1,4 +1,4 @@
-"""MIRA – Mail, Identity, Routing & Access. Startpunkt (FastAPI + uvicorn)."""
+"""MIRA – Management, Identity, Routing & Access. Startpunkt (FastAPI + uvicorn)."""
 from __future__ import annotations
 
 import os
@@ -15,6 +15,7 @@ module.laden()
 import anmeldung  # noqa: E402
 import einrichtung  # noqa: E402
 import verwaltung  # noqa: E402
+import plugins  # noqa: E402
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 
@@ -28,7 +29,8 @@ async def lebenszyklus(app):
     except Exception as e:  # noqa: BLE001
         kern.log("Datenbank nicht erreichbar:", e)
     einrichtung.code_melden()
-    kern.log(f"MIRA {kern.VERSION} bereit – Module: {', '.join(module.REGISTER)}")
+    plugins.scan()
+    kern.log(f"MIRA {kern.VERSION} bereit – Module: {', '.join(module.REGISTER)} – Plugins: {', '.join(plugins._plugins) or '–'}")
     yield
 
 
@@ -79,6 +81,7 @@ async def _laufzeit(req, e):
 app.include_router(anmeldung.router)
 app.include_router(einrichtung.router)
 app.include_router(verwaltung.router)
+app.include_router(plugins.router)
 for m in module.REGISTER.values():
     if m.router:
         app.include_router(m.router)

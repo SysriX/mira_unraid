@@ -471,11 +471,3 @@ async function exPostfach(vid, p, neu) {
   neu();
 }
 
-// ================================================================== WireGuard (shared view: wireguard.js)
-window.WG_HOST = {
-  base: "/api/m/wireguard", shareBase: "/wg-share",
-  firewalls: () => verbindungen("wireguard").map(v => ({ id: v.id, name: v.name })),
-  can: level => darf({ read: "leser", write: "operator", admin: "admin" }[level]),
-  noFirewall: el => el.append(keineVerbindung("wireguard")),
-};
-ANSICHT.wireguard = { titel: "WireGuard", typ: "wireguard", zeigen: (main, q) => wgView(main, q) };

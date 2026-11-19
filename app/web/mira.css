@@ -130,3 +130,15 @@ img.symbol{filter:drop-shadow(0 0 8px rgba(255,255,255,.16)) drop-shadow(0 2px 3
 [data-theme=hell] img.symbol{filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
 /* Wortmarke: Schatten steckt in der Datei – helle bzw. dunkle Fassung je nach Theme */
 [data-theme=hell] img.nur-dunkel,:root:not([data-theme=hell]) img.nur-hell{display:none!important}
+/* Plugins */
+.nav-icon{width:16px;height:16px;object-fit:contain;flex:none}
+.plugin-kopf{display:flex;gap:14px;align-items:flex-start}
+.plugin-kopf img{width:52px;height:52px;object-fit:contain;flex:none}
+.plugin-kopf h2{margin:0 0 2px}
+.plugin-assistent h4{margin:16px 0 6px}
+.plugin-assistent .leiste input{flex:1;min-width:0}
+.plugin-funde{display:flex;flex-direction:column;gap:4px;margin:6px 0}
+.plugin-funde .fund{display:flex;gap:8px;align-items:center;padding:7px 10px;border:1px solid var(--rand);border-radius:8px}
+.plugin-funde .fund.an{border-color:var(--akzent);background:color-mix(in srgb,var(--akzent) 10%,transparent)}
+.dreher{display:inline-block;width:12px;height:12px;border:2px solid var(--rand);border-top-color:var(--akzent);border-radius:50%;animation:dreh .8s linear infinite;vertical-align:-1px}
+@keyframes dreh{to{transform:rotate(360deg)}}
