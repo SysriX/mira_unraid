@@ -23,6 +23,7 @@ Weitere Unraid-Pakete: [haproxy-unraid](https://github.com/SysriX/haproxy_unraid
 | **nginx** | Hosts als Reverse-Proxy, Webseite, PHP oder Umleitung – HTTPS, HTTP→HTTPS, WebSockets, PROXY-Protokoll, echte Client-IP, Upload-Grenze, Sicherheits-Header, weitere Pfade, eigene Zeilen; **Vorschau**; Speichern = Datei schreiben → `nginx -t` → bei Fehler alter Stand zurück → `reload`. Dateien statischer Seiten hochladen. Von Hand geschriebene Dateien als Text bearbeiten |
 | **grommunio** | Domänen, Postfächer (anlegen, Speicherplatz, sperren, Passwort, Aliase, löschen), Übernahme aus LDAP, Systemstatus |
 | **Exchange** | Postfächer (aktivieren, trennen, Speichergrenzen, Adressen, Weiterleitung, im Adressbuch ausblenden, Vollzugriff/Senden als), freigegebene Postfächer/Räume, Verteiler, Datenbanken, akzeptierte Domänen, Zertifikate, Warteschlangen, **PowerShell** für alles Weitere |
+| **WireGuard** (OPNsense) | vorhandene Instanzen und Zugänge **importieren** (in die MIRA-Datenbank), neue Geräte anlegen und **sofort aktivieren**, vorhandene `.conf` übernehmen, Konfiguration ansehen (ohne Schlüssel), mit **QR-Code**, als **Datei** oder **Freigabelink** (zeitlich begrenzt, ohne Anmeldung), Schlüssel erneuern, Online-Status und Datenmenge; **Standortverbindungen** zwischen zwei OPNsense (eigene Instanz, bestehende Zugänge bleiben unberührt). Gleicher Kern wie die eigenständige App [VERA](https://github.com/SysriX/vera_unraid) |
 | **Protokoll** | wer hat wann was geändert – jede Aktion, jede Anmeldung, auch Fehlversuche |
 | **Aussehen** | Themes oben rechts: **Konsole** (dunkel, plastisch, Akzent Orange · Grün · Blau), Dunkel schlicht, Hell, wie das System – gemerkt im Browser |
 
@@ -71,6 +72,7 @@ Weitere Dienste (HAProxy, nginx, grommunio, Exchange, weitere ADs) danach unter 
 | HAProxy | [haproxy-ui](https://github.com/SysriX/haproxy-ui_unraid) mit Adresse und `UI_PASS` |
 | nginx | Konfigurationsordner in MIRA eingebunden; für Prüfen/Neu laden Docker-Socket + Containername |
 | grommunio | Admin-Konto der Admin-Oberfläche (Port 8443) |
+| WireGuard | OPNsense-Benutzer mit **API-Schlüssel** (Key + Secret), Rechte „VPN: WireGuard“; für Standortverbindungen zusätzlich Firewall-Regeln/Aliase (Automation). Tabellen `wg_*` liegen in MIRAs Datenbank |
 | Exchange | **WinRM** auf dem Exchange-Server (`winrm quickconfig`), Konto in „Organization Management“ bzw. „Recipient Management“; Standard: WinRM + Snap-In mit NTLM. Alternativ der offizielle Endpunkt `/PowerShell` (meist Kerberos) |
 
 ## Umgebungsvariablen
@@ -93,9 +95,12 @@ Weitere Dienste (HAProxy, nginx, grommunio, Exchange, weitere ADs) danach unter 
 ## Geplant
 
 - **Rechte-Datenbank**: Dienste, Rechte und Rollen in MariaDB, MIRA schreibt daraus die Gruppen ins AD und die Attribute nach Authentik.
-- Weitere Module nach Bedarf (z. B. Nextcloud, Home Assistant, OPNsense).
+- Weitere Module nach Bedarf (z. B. Nextcloud, Home Assistant).
+- WireGuard: Zugriffsregeln je Standortverbindung (z. B. nur ein Rechner auf bestimmte Netze der Gegenseite).
 
 ## Entwicklung
+
+`app/wgcore/` ist eine Kopie aus dem VERA-Repository (dort zuerst ändern, dann herüberkopieren – ebenso `app/web/wireguard.js` und `wireguard.css`).
 
 ```bash
 pip install -r requirements.txt

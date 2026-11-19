@@ -79,5 +79,5 @@ def registrieren(m: Modul) -> Modul:
 
 def laden():
     # Reihenfolge = Reihenfolge in der Oberfläche
-    from module import ad, authentik, haproxy, nginx, grommunio, exchange  # noqa: F401
+    from module import ad, authentik, haproxy, nginx, grommunio, exchange, wireguard  # noqa: F401
     return REGISTER

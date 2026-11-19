@@ -165,6 +165,7 @@ const NAVI = [
   ["Identität", [["benutzer", "Benutzer", "ad"], ["gruppen", "Gruppen", "ad"], ["neu", "Neuer Mitarbeiter", "ad"]]],
   ["Dienste", [["authentik", "Authentik", "authentik"], ["haproxy", "HAProxy", "haproxy"], ["nginx", "nginx", "nginx"],
                ["grommunio", "grommunio", "grommunio"], ["exchange", "Exchange", "exchange"]]],
+  ["Netzwerk", [["wireguard", "WireGuard", "wireguard"]]],
   ["MIRA", [["verbindungen", "Verbindungen"], ["zugang", "Zugang", null, "admin"], ["einstellungen", "Einstellungen", null, "admin"],
             ["protokoll", "Protokoll", null, "operator"]]],
 ];
@@ -457,7 +458,7 @@ ANSICHT.uebersicht = { titel: "Übersicht", zeigen: async main => {
     h("div", { class: "kachel" }, h("div", { class: "w" }, d.verbindungen.length), h("div", { class: "l" }, "Verbindungen")),
     h("div", { class: "kachel" }, h("div", { class: "w" }, d.zugang), h("div", { class: "l" }, "Personen mit Zugang zu MIRA")),
     h("div", { class: "kachel" }, h("div", { class: "w" }, d.fehlanmeldungen_heute), h("div", { class: "l" }, "Fehlanmeldungen heute")));
-  const ziel = { ad: "benutzer", authentik: "authentik", haproxy: "haproxy", nginx: "nginx", grommunio: "grommunio", exchange: "exchange" };
+  const ziel = { ad: "benutzer", authentik: "authentik", haproxy: "haproxy", nginx: "nginx", grommunio: "grommunio", exchange: "exchange", wireguard: "wireguard" };
   const dienste = h("div", { class: "kacheln" }, d.verbindungen.map(v => {
     const ok = v.status.startsWith("ok"), fehl = v.status.startsWith("fehler");
     return h("div", { class: "kachel klick", onclick: () => { localStorage.setItem("mira.verb." + v.typ, v.id); location.hash = "#" + (ziel[v.typ] || "verbindungen"); } },
