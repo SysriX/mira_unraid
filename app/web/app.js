@@ -23,7 +23,7 @@ function h(tag, attrs, ...kinder) {
   }
   return el;
 }
-const leeren = (el, ...neu) => { el.replaceChildren(...neu.flat().filter(x => x !== null && x !== undefined && x !== false)); return el; };
+const leeren = (el, ...neu) => { el.replaceChildren(...neu.flat(Infinity).filter(x => x !== null && x !== undefined && x !== false)); return el; };
 
 async function api(methode, pfad, daten, extra = {}) {
   const opt = { method: methode, headers: { "X-MIRA": "1", ...(extra.headers || {}) }, credentials: "same-origin" };
