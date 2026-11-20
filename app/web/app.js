@@ -27,7 +27,7 @@ const leeren = (el, ...neu) => { el.replaceChildren(...neu.flat().filter(x => x 
 
 async function api(methode, pfad, daten, extra = {}) {
   const opt = { method: methode, headers: { "X-MIRA": "1", ...(extra.headers || {}) }, credentials: "same-origin" };
-  if (daten instanceof FormData) opt.body = daten;
+  if (daten instanceof FormData || daten instanceof Blob) opt.body = daten;          // Blob/File: raw upload
   else if (daten !== undefined) { opt.body = JSON.stringify(daten); opt.headers["Content-Type"] = "application/json"; }
   const r = await fetch(pfad, opt);
   let d = null;
