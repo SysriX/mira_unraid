@@ -1,8 +1,9 @@
-"""Modul HAProxy – bindet haproxy-ui an (eigenständiges Produkt, ghcr.io/sysrix/haproxy-ui).
+"""HAProxy servers with access "haproxy-ui" (separate product, ghcr.io/sysrix/haproxy-ui).
 
-MIRA spricht mit der API von haproxy-ui; dort bleiben Prüfung, Übernahme mit Rücksprung und der
-Assistent „Neue Adresse“. In MIRA: Übersicht/Statistik, Dienste-Tabelle, Zertifikate, Unterschiede,
-Prüfen/Übernehmen/Zurück, Regeln (Baukasten) ansehen und löschen, Dateien lesen/schreiben.
+MIRA talks to the haproxy-ui API; checking, applying with automatic rollback and the assistant
+"Neue Adresse" stay there. In MIRA: overview/statistics, services table, certificates, diff,
+check/apply/rollback, rules (Baukasten) view and delete, read/write files.
+Routes: /api/srv/<server id>/haproxy/...   (HAProxy on OPNsense: module/opnsense_haproxy.py)
 """
 from __future__ import annotations
 
@@ -12,29 +13,33 @@ import httpx
 from fastapi import APIRouter, Depends, Request
 
 from anmeldung import rolle
-from module import Fehler, Modul, prot, registrieren, verbindung_dep, wahr
+from module import Fehler, prot, wahr
+from server_store import server_dep
+
+FIELDS = [
+    {"name": "url", "titel": "Adresse von haproxy-ui", "art": "text", "pflicht": True, "hilfe": "z. B. http://<IP_haproxy-ui>:8080"},
+    {"name": "passwort", "titel": "Passwort (UI_PASS)", "art": "password", "pflicht": True},
+    {"name": "tls_pruefen", "titel": "Zertifikat prüfen", "art": "bool", "standard": True},
+]
 
 
-class HAProxy(Modul):
-    typ = "haproxy"
-    titel = "HAProxy"
-    beschreibung = "Reverse-Proxy über haproxy-ui: Dienste, Statistik, Zertifikate, sicheres Übernehmen."
-    felder = [
-        {"name": "url", "titel": "Adresse von haproxy-ui", "art": "text", "pflicht": True, "hilfe": "z. B. http://<IP_haproxy-ui>:8080"},
-        {"name": "passwort", "titel": "Passwort (UI_PASS)", "art": "password", "pflicht": True},
-        {"name": "tls_pruefen", "titel": "Zertifikat prüfen", "art": "bool", "standard": True},
-    ]
-
-    def testen(self, w):
-        z = Client.fuer(w).get("/api/zustand")
-        s = z.get("stats") or {}
-        return "Verbunden" + (f" – Statistik: {s['fehler']}" if s.get("fehler") else f", {len(s.get('zeilen') or [])} Statistik-Zeilen")
+def test(w) -> str:
+    z = Client.fuer(w).get("/api/zustand")
+    s = z.get("stats") or {}
+    return "Verbunden" + (f" – Statistik: {s['fehler']}" if s.get("fehler") else f", {len(s.get('zeilen') or [])} Statistik-Zeilen")
 
 
-MODUL = registrieren(HAProxy())
-router = APIRouter(prefix="/api/m/haproxy/{vid}", tags=["haproxy"])
-MODUL.router = router
-verb = verbindung_dep("haproxy")
+def summary(w) -> dict:
+    z = Client.fuer(w).get("/api/zustand")
+    rows = (z.get("stats") or {}).get("zeilen") or []
+    sv = [r for r in rows if r.get("typ") == "server"]
+    down = [r for r in sv if r.get("status") and not str(r["status"]).upper().startswith(("UP", "NO CHECK"))]
+    return {"running": not (z.get("stats") or {}).get("fehler"), "servers_up": len(sv) - len(down), "servers": len(sv),
+            "pending": bool(z.get("offen")), "certs": len(z.get("zertifikate") or [])}
+
+
+router = APIRouter(prefix="/api/srv/{sid}/haproxy", tags=["haproxy"])
+verb = server_dep("haproxy", ("haproxy-ui",))
 
 
 class Client:
@@ -153,7 +158,7 @@ def datei(pfad: str, w=Depends(verb), u=Depends(rolle("leser"))):
 async def datei_schreiben(req: Request, w=Depends(verb), u=Depends(rolle("admin"))):
     d = await req.json()
     r = Client.fuer(w).post("/api/datei", {"pfad": d["pfad"], "text": d["text"]})
-    prot(u, "haproxy", "Datei geschrieben (Entwurf)", d["pfad"])
+    prot(u, "haproxy", "Datei geschrieben (Entwurf)", f"{w['_name']}: {d['pfad']}")
     return r
 
 
@@ -166,5 +171,5 @@ def regeln(w=Depends(verb), u=Depends(rolle("leser"))):
 async def regel_loeschen(req: Request, w=Depends(verb), u=Depends(rolle("operator"))):
     name = (await req.json()).get("name", "")
     r = Client.fuer(w).post("/api/baukasten/loeschen", {"name": name})
-    prot(u, "haproxy", "Adresse gelöscht (Entwurf)", name)
+    prot(u, "haproxy", "Adresse gelöscht (Entwurf)", f"{w['_name']}: {name}")
     return r

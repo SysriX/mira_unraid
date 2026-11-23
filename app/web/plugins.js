@@ -177,7 +177,8 @@ async function pluginAssistent(p) {
   const liste = h("div", { class: "plugin-funde" });
   const status = h("div", { class: "klein-t leise" });
   const netze = eingabe("networks", "", { placeholder: "leer = eigenes Netz · z. B. 192.168.10.0/24 192.168.20.0/24:8443" });
-  const url = eingabe("url", "", { placeholder: "z. B. http://<IP_VERA>:8080" });
+  const eigen = p.connect_type && p.connect_type !== "sysrix";
+  const url = eingabe("url", "", { placeholder: eigen ? `z. B. https://<IP_${p.name.replace(/\s+/g, "")}>:4055` : "z. B. http://<IP_VERA>:8080" });
   const urlInfo = h("div", { class: "klein-t" });
   const name = eingabe("name", p.name);
   const login = h("div", {},
@@ -186,7 +187,9 @@ async function pluginAssistent(p) {
       feld("Passwort", eingabe("password", "", { type: "password", autocomplete: "new-password" })),
       feld("Rechte für MIRA", auswahl("role", [["admin", "Admin (alles, wie direkt in " + p.name + ")"], ["write", "Bearbeiten"], ["read", "Nur lesen"]], "admin"))),
     haken("Zertifikat prüfen", false, "nur bei HTTPS mit gültigem Zertifikat", "verify_tls").el,
-    h("p", { class: "leise klein-t" }, `Benutzer und Passwort werden nur einmal an ${p.name} geschickt und nicht gespeichert. ${p.name} stellt MIRA dafür einen eigenen Schlüssel aus – widerrufbar in ${p.name} unter „Verbundene Apps“. Was ein MIRA-Benutzer darf, richtet sich zusätzlich nach seiner Rolle in MIRA.`));
+    h("p", { class: "leise klein-t" }, eigen
+      ? `${p.name} kennt keine API-Schlüssel für die Verwaltung. MIRA speichert Benutzer und Passwort deshalb verschlüsselt und meldet sich selbst an (nur lokale Konten). Was ein MIRA-Benutzer darf, richtet sich nach seiner Rolle in MIRA und den Rechten oben.`
+      : `Benutzer und Passwort werden nur einmal an ${p.name} geschickt und nicht gespeichert. ${p.name} stellt MIRA dafür einen eigenen Schlüssel aus – widerrufbar in ${p.name} unter „Verbundene Apps“. Was ein MIRA-Benutzer darf, richtet sich zusätzlich nach seiner Rolle in MIRA.`));
 
   const waehle = (u, el) => {
     gewaehlt = u;

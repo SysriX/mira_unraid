@@ -10,19 +10,19 @@
   <Support>https://github.com/SysriX/mira_unraid/issues</Support>
   <Project>https://github.com/SysriX/mira_unraid</Project>
   <ReadMe>https://github.com/SysriX/mira_unraid/blob/main/README.md</ReadMe>
-  <Overview>MIRA – Management, Identity, Routing &amp; Access. Die Zentrale für die ganze Infrastruktur – erweiterbar über Plugins (z. B. VERA für WireGuard): Benutzer, Gruppen, Passwörter und OUs im Windows- oder Samba-AD, Authentik (Anwendungen, Zugriff je Gruppe, Benutzer, Outposts), HAProxy über haproxy-ui (Dienste, Statistik, Zertifikate, Prüfen/Übernehmen mit Rücksprung), nginx-Hosts (Reverse-Proxy, Webseiten, PHP, Umleitungen – mit nginx -t und Rücksprung), grommunio und Exchange (Postfächer, Adressen, Speicherplatz, Berechtigungen, Verteiler).&#xD;
+  <Overview>MIRA – Management, Identity, Routing &amp; Access. Die Zentrale für die ganze Infrastruktur – erweiterbar über Plugins (z. B. VERA für WireGuard): Benutzer, Gruppen, Passwörter und OUs im Windows- oder Samba-AD, Authentik (Anwendungen, Zugriff je Gruppe, Benutzer, Outposts), beliebig viele HAProxy-Server – über haproxy-ui (Dienste, Statistik, Zertifikate, Prüfen/Übernehmen mit Rücksprung) oder das HAProxy-Plugin der OPNsense (Frontends, Backends, Server, ACLs, Aktionen, prüfen und übernehmen) –, beliebig viele nginx-Server lokal oder per SSH (Reverse-Proxy, Webseiten, PHP, Umleitungen – mit nginx -t und Rücksprung), Cert Warden (Zertifikate, Ablaufdaten, erneuern, ACME-Konten), grommunio und Exchange (Postfächer, Adressen, Speicherplatz, Berechtigungen, Verteiler).&#xD;
 &#xD;
 Abläufe über alle Dienste: „Neuer Mitarbeiter“ (AD-Konto + Gruppen + Postfach + Zugang in einem Rutsch) und „Mitarbeiter sperren“.&#xD;
 &#xD;
 Anmeldung über Authentik (OIDC), Domänen-Konto oder lokalen Notfall-Admin; nur wer in MIRA freigegeben ist und im AD in der Zugangsgruppe steht. Zugangsdaten zu den Diensten werden verschlüsselt gespeichert. Beim ersten Start führt ein Assistent durch die Einrichtung – der Einrichtungs-Code steht im Log.</Overview>
   <Category>Network:Management Tools:Security: Network:Proxy</Category>
-  <ExtraSearchTerms>active directory samba ldap authentik haproxy nginx grommunio exchange benutzer verwaltung admin identity sso</ExtraSearchTerms>
+  <ExtraSearchTerms>active directory samba ldap authentik haproxy opnsense certwarden acme letsencrypt nginx grommunio exchange benutzer verwaltung admin identity sso</ExtraSearchTerms>
   <WebUI>http://[IP]:[PORT:8080]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/SysriX/mira_unraid/main/templates/mira.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/SysriX/mira_unraid/main/icon.png</Icon>
   <ExtraParams>--hostname mira --log-opt max-size=10m --log-opt max-file=3</ExtraParams>
   <PostArgs/>
-  <Requires>Optional: MariaDB (sonst eingebaute SQLite), Authentik, haproxy-ui, nginx-Container, grommunio, Exchange mit WinRM.</Requires>
+  <Requires>Optional: MariaDB (sonst eingebaute SQLite), Authentik, haproxy-ui oder OPNsense mit os-haproxy, nginx-Container oder nginx-Hosts mit SSH, Cert Warden, grommunio, Exchange mit WinRM.</Requires>
   <License>MIT</License>
   <Config Name="Daten" Target="/config" Default="/mnt/user/appdata/mira" Mode="rw" Description="Datenbank (SQLite), Startkonfiguration und der Schlüssel für gespeicherte Passwörter (schluessel.key – mit sichern!)." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/mira</Config>
   <Config Name="nginx-Konfiguration" Target="/nginx/conf.d" Default="" Mode="rw" Description="Optional: Ordner mit den *.conf-Dateien des nginx-Containers (z. B. /mnt/user/appdata/nginx/conf.d)." Type="Path" Display="always" Required="false" Mask="false"/>

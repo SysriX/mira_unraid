@@ -125,10 +125,10 @@ async function akAnwendungDialog(vid, neu) {
 }
 
 // ================================================================== HAProxy
-ANSICHT.haproxy = { titel: "HAProxy", typ: "haproxy", zeigen: reiterSeite("haproxy",
+const HAPUI_SEITE = reiterSeite("srv:haproxy",
   [["status", "Status"], ["dienste", "Dienste"], ["aenderungen", "Änderungen"], ["dateien", "Dateien"]], {
     status: async (el, vid) => {
-      const z = await api("GET", `/api/m/haproxy/${vid}/zustand`);
+      const z = await api("GET", `/api/srv/${vid}/haproxy/zustand`);
       const zeilen = z.stats.zeilen || [];
       const fe = zeilen.filter(r => r.typ === "frontend"), be = zeilen.filter(r => r.typ === "backend"), sv = zeilen.filter(r => r.typ === "server");
       const down = sv.filter(s => s.status && !/^UP|no check/i.test(s.status));
@@ -147,7 +147,7 @@ ANSICHT.haproxy = { titel: "HAProxy", typ: "haproxy", zeigen: reiterSeite("hapro
           { t: "läuft ab", w: c => datum(c.ende) }, { t: "Tage", w: c => c.tage, z: true }], z.zertifikate)));
     },
     dienste: async (el, vid, neu) => {
-      const d = await api("GET", `/api/m/haproxy/${vid}/dienste`);
+      const d = await api("GET", `/api/srv/${vid}/haproxy/dienste`);
       const op = darf("operator");
       const zeilen = d.dienste.map(x => ({ ...x }));
       const body = h("tbody", {});
@@ -163,47 +163,54 @@ ANSICHT.haproxy = { titel: "HAProxy", typ: "haproxy", zeigen: reiterSeite("hapro
         Object.assign(zeilen[i], { backend: s[0].value, zugang: s[1].value, modus: s[2].value });
       });
       zeichne();
-      leeren(el, h("div", { class: "karte" }, h("h2", {}, "Dienste (Name → Backend)", h("span", { class: "rechts" }, h("a", { href: (await api("GET", `/api/m/haproxy/${vid}/zustand`)).ui_url, target: "_blank", rel: "noopener" }, "Assistent „Neue Adresse“ in haproxy-ui ↗"))),
+      leeren(el, h("div", { class: "karte" }, h("h2", {}, "Dienste (Name → Backend)", h("span", { class: "rechts" }, h("a", { href: (await api("GET", `/api/srv/${vid}/haproxy/zustand`)).ui_url, target: "_blank", rel: "noopener" }, "Assistent „Neue Adresse“ in haproxy-ui ↗"))),
         h("p", { class: "leise klein-t" }, "Änderungen landen erst im Entwurf. Unter „Änderungen“ prüfen und übernehmen – HAProxy springt bei Fehlern automatisch zurück."),
         h("div", { class: "tab-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, ["Name", "Backend", "Zugang", "Modus", "Notiz", ""].map(t => h("th", {}, t)))), body)),
         op ? h("div", { class: "leiste", style: { marginTop: "10px" } }, h("button", { onclick: () => { zeilen.push({ name: "", backend: "", zugang: "alle", modus: "tls", notiz: "" }); zeichne(); } }, "+ Zeile"),
           h("span", { class: "rechts" }, h("button", { class: "p", onclick: async () => {
-            const r = await versuch(() => api("POST", `/api/m/haproxy/${vid}/dienste`, { dienste: zeilen.filter(z => z.name) }), "im Entwurf gespeichert");
+            const r = await versuch(() => api("POST", `/api/srv/${vid}/haproxy/dienste`, { dienste: zeilen.filter(z => z.name) }), "im Entwurf gespeichert");
             if (r.hinweise && r.hinweise.length) dialog("Hinweise", h("ul", {}, r.hinweise.map(x => h("li", {}, x))));
           } }, "Speichern (Entwurf)"))) : null));
     },
     aenderungen: async (el, vid, neu) => {
-      const [d, a] = await Promise.all([api("GET", `/api/m/haproxy/${vid}/diff`), api("GET", `/api/m/haproxy/${vid}/auftrag`)]);
+      const [d, a] = await Promise.all([api("GET", `/api/srv/${vid}/haproxy/diff`), api("GET", `/api/srv/${vid}/haproxy/auftrag`)]);
       const diff = d.diff || "";
       const pre = h("pre", {}, diff ? diff.split("\n").map(z => h("span", { class: z.startsWith("+") ? "plus" : z.startsWith("-") ? "minus" : z.startsWith("@@") ? "at" : "" }, z + "\n")) : "Keine Unterschiede zur laufenden Konfiguration.");
       const erg = a.ergebnis;
       leeren(el, h("div", { class: "karte" }, h("h2", {}, "Entwurf ↔ laufend", h("span", { class: "rechts" },
         darf("operator") ? [h("button", { class: "klein", onclick: () => hapAuftrag(vid, "pruefen", neu) }, "Prüfen"),
-          h("button", { class: "klein gefahr", disabled: !diff, onclick: async () => { if (await bestaetigen("Entwurf verwerfen?")) { await versuch(() => api("POST", `/api/m/haproxy/${vid}/verwerfen`), "verworfen"); neu(); } } }, "Verwerfen")] : null,
+          h("button", { class: "klein gefahr", disabled: !diff, onclick: async () => { if (await bestaetigen("Entwurf verwerfen?")) { await versuch(() => api("POST", `/api/srv/${vid}/haproxy/verwerfen`), "verworfen"); neu(); } } }, "Verwerfen")] : null,
         darf("admin") ? [h("button", { class: "klein", onclick: async () => { if (await bestaetigen("Auf den vorherigen Stand zurückspringen?", "Zurück")) hapAuftrag(vid, "zurueck", neu); } }, "Zurückspringen"),
           h("button", { class: "p klein", disabled: !diff, onclick: async () => { if (await bestaetigen("Entwurf übernehmen? HAProxy prüft vorher und springt bei Problemen zurück.", "Übernehmen", false)) hapAuftrag(vid, "uebernehmen", neu); } }, "Übernehmen")] : null)), pre),
       h("div", { class: "karte" }, h("h2", {}, "Letzter Auftrag", h("span", { class: "rechts" }, a.waechter ? marke("Wächter läuft", "ok") : marke("Wächter antwortet nicht", "bad"))),
         erg ? [h("p", {}, punkt(erg.code === 0 ? "ok" : "bad"), ` ${erg.aktion} · ${erg.zeit} · Code ${erg.code}`), h("pre", {}, erg.log)] : h("p", { class: "leise" }, a.laeuft ? "läuft …" : "noch keiner")));
     },
     dateien: async (el, vid) => {
-      const d = await api("GET", `/api/m/haproxy/${vid}/dateien`);
+      const d = await api("GET", `/api/srv/${vid}/haproxy/dateien`);
       const ed = h("textarea", { class: "gross", spellcheck: "false", disabled: !darf("admin") });
       let pfad = null;
       const liste = h("div", { class: "chips" }, d.dateien.map(p => h("button", { class: "klein", onclick: async e => {
         liste.querySelectorAll("button").forEach(b => b.classList.remove("p")); e.target.classList.add("p");
-        pfad = p; ed.value = (await api("GET", `/api/m/haproxy/${vid}/datei?pfad=${encodeURIComponent(p)}`)).text;
+        pfad = p; ed.value = (await api("GET", `/api/srv/${vid}/haproxy/datei?pfad=${encodeURIComponent(p)}`)).text;
       } }, p)));
       leeren(el, h("div", { class: "karte" }, liste), h("div", { class: "karte" }, ed,
-        darf("admin") ? h("div", { class: "leiste", style: { marginTop: "8px" } }, h("span", { class: "rechts" }, h("button", { class: "p", onclick: () => pfad && versuch(() => api("POST", `/api/m/haproxy/${vid}/datei`, { pfad, text: ed.value }), "im Entwurf gespeichert") }, "Speichern (Entwurf)"))) : null));
+        darf("admin") ? h("div", { class: "leiste", style: { marginTop: "8px" } }, h("span", { class: "rechts" }, h("button", { class: "p", onclick: () => pfad && versuch(() => api("POST", `/api/srv/${vid}/haproxy/datei`, { pfad, text: ed.value }), "im Entwurf gespeichert") }, "Speichern (Entwurf)"))) : null));
     },
-  }) };
+  });
+
+// HAProxy: one page, the tabs depend on the access type of the chosen server (haproxy-ui or OPNsense, see server.js)
+ANSICHT.haproxy = { titel: "HAProxy", typ: "srv:haproxy", zeigen: async (main, q) => {
+  const vs = verbAuswahl("srv:haproxy", zeige);
+  const s = SERVERS.find(x => x.id === vs.id);
+  return s && s.access === "opnsense" ? OPN_SEITE(main, q) : HAPUI_SEITE(main, q);
+} };
 
 async function hapAuftrag(vid, aktion, neu) {
-  await versuch(() => api("POST", `/api/m/haproxy/${vid}/auftrag`, { aktion }));
+  await versuch(() => api("POST", `/api/srv/${vid}/haproxy/auftrag`, { aktion }));
   hinweis(`Auftrag „${aktion}“ gestellt …`);
   for (let i = 0; i < 60; i++) {
     await new Promise(r => setTimeout(r, 2000));
-    const a = await api("GET", `/api/m/haproxy/${vid}/auftrag`);
+    const a = await api("GET", `/api/srv/${vid}/haproxy/auftrag`);
     if (!a.laeuft && a.ergebnis) {
       await dialog(a.ergebnis.code === 0 ? `${aktion}: erfolgreich` : `${aktion}: Fehler (Code ${a.ergebnis.code})`, h("pre", {}, a.ergebnis.log));
       if (neu) neu();
@@ -214,14 +221,14 @@ async function hapAuftrag(vid, aktion, neu) {
 }
 
 // ================================================================== nginx
-ANSICHT.nginx = { titel: "nginx", typ: "nginx", zeigen: async (main) => {
-  const vs = verbAuswahl("nginx", zeige);
+ANSICHT.nginx = { titel: "nginx", typ: "srv:nginx", zeigen: async (main) => {
+  const vs = verbAuswahl("srv:nginx", zeige);
   const vid = vs.id;
-  const d = await api("GET", `/api/m/nginx/${vid}/hosts`);
+  const d = await api("GET", `/api/srv/${vid}/nginx/hosts`);
   const op = darf("operator");
   leeren(main, h("div", { class: "leiste" }, vs.el, h("span", { class: "rechts" },
-    h("button", { onclick: async () => { const r = await api("POST", `/api/m/nginx/${vid}/pruefen`); dialog(r.ok ? "Konfiguration in Ordnung" : "Fehler in der Konfiguration", h("pre", {}, r.ausgabe)); } }, "nginx -t"),
-    op ? h("button", { onclick: () => versuch(() => api("POST", `/api/m/nginx/${vid}/neu-laden`), "neu geladen") }, "Neu laden") : null,
+    h("button", { onclick: async () => { const r = await api("POST", `/api/srv/${vid}/nginx/pruefen`); dialog(r.ok ? "Konfiguration in Ordnung" : "Fehler in der Konfiguration", h("pre", {}, r.ausgabe)); } }, "nginx -t"),
+    op ? h("button", { onclick: () => versuch(() => api("POST", `/api/srv/${vid}/nginx/neu-laden`), "neu geladen") }, "Neu laden") : null,
     op ? h("button", { class: "p", onclick: () => nginxHost(vid, null) }, "+ Neuer Host") : null)),
   h("div", { class: "karte" }, tabelle([{ t: "Datei", w: x => x.datei }, { t: "Namen", w: x => x.namen.join(", ") },
     { t: "Art", w: x => marke({ proxy: "Proxy", statisch: "Webseite", php: "PHP", umleitung: "Umleitung" }[x.typ] || x.typ) },
@@ -272,18 +279,18 @@ async function nginxHost(vid, x) {
   const daten = () => { const d = lesenForm(f); if (x) d.name = hst.name; d.orte = orte.filter(o => o.pfad && o.ziel); return d; };
   const op = darf("operator");
   await dialog(x ? `Host ${hst.name}` : "Neuer nginx-Host", f, [
-    ["Vorschau", async () => { const r = await api("POST", `/api/m/nginx/${vid}/vorschau`, { host: daten() }); await dialog("Erzeugte Konfiguration", h("pre", {}, r.text)); return false; }],
-    ...(x && op ? [["Löschen", async () => { if (!(await bestaetigen(`Host ${hst.name} löschen?`))) return false; await versuch(() => api("DELETE", `/api/m/nginx/${vid}/hosts/${x.datei}`), "gelöscht"); }, "gefahr"]] : []),
+    ["Vorschau", async () => { const r = await api("POST", `/api/srv/${vid}/nginx/vorschau`, { host: daten() }); await dialog("Erzeugte Konfiguration", h("pre", {}, r.text)); return false; }],
+    ...(x && op ? [["Löschen", async () => { if (!(await bestaetigen(`Host ${hst.name} löschen?`))) return false; await versuch(() => api("DELETE", `/api/srv/${vid}/nginx/hosts/${x.datei}`), "gelöscht"); }, "gefahr"]] : []),
     ...(x && (hst.typ === "statisch" || hst.typ === "php") && !hst.root ? [["Dateien", async () => { await nginxWeb(vid, hst.name); return false; }]] : []),
     ["Abbrechen", null],
-    ...(op ? [["Speichern + laden", async () => { const r = await api("POST", `/api/m/nginx/${vid}/hosts`, { host: daten(), alt_datei: x ? x.datei : null }); hinweis(r.laden); }, "p"]] : [])]);
+    ...(op ? [["Speichern + laden", async () => { const r = await api("POST", `/api/srv/${vid}/nginx/hosts`, { host: daten(), alt_datei: x ? x.datei : null }); hinweis(r.laden); }, "p"]] : [])]);
   zeige();
 }
 
 async function nginxDatei(vid, datei) {
-  const d = await api("GET", `/api/m/nginx/${vid}/datei?name=${encodeURIComponent(datei)}`);
+  const d = await api("GET", `/api/srv/${vid}/nginx/datei?name=${encodeURIComponent(datei)}`);
   const t = h("textarea", { class: "gross", spellcheck: "false", disabled: !darf("admin") }, d.text);
-  await dialog(datei, t, [["Schließen", null], ...(darf("admin") ? [["Speichern + laden", async () => { const r = await api("POST", `/api/m/nginx/${vid}/datei`, { datei, text: t.value }); hinweis(r.laden); }, "p"]] : [])]);
+  await dialog(datei, t, [["Schließen", null], ...(darf("admin") ? [["Speichern + laden", async () => { const r = await api("POST", `/api/srv/${vid}/nginx/datei`, { datei, text: t.value }); hinweis(r.laden); }, "p"]] : [])]);
   zeige();
 }
 
@@ -291,14 +298,14 @@ async function nginxWeb(vid, site) {
   let pfad = "";
   const liste = h("div", {});
   const laden = async () => {
-    const d = await api("GET", `/api/m/nginx/${vid}/web/${encodeURIComponent(site)}?pfad=${encodeURIComponent(pfad)}`);
+    const d = await api("GET", `/api/srv/${vid}/nginx/web/${encodeURIComponent(site)}?pfad=${encodeURIComponent(pfad)}`);
     leeren(liste, h("p", { class: "klein-t" }, `/${pfad}`, pfad ? h("button", { class: "klein", onclick: () => { pfad = pfad.split("/").slice(0, -1).join("/"); laden(); } }, "↑") : null),
       tabelle([{ t: "Name", w: e => e.ordner ? h("b", {}, e.name + "/") : e.name }, { t: "Größe", w: e => groesse(e.groesse), z: true },
-        { t: "", w: e => darf("operator") ? h("button", { class: "klein gefahr", onclick: async ev => { ev.stopPropagation(); if (await bestaetigen(`${e.name} löschen?`)) { await api("DELETE", `/api/m/nginx/${vid}/web/${encodeURIComponent(site)}?pfad=${encodeURIComponent((pfad ? pfad + "/" : "") + e.name)}`); laden(); } } }, "×") : "" }],
+        { t: "", w: e => darf("operator") ? h("button", { class: "klein gefahr", onclick: async ev => { ev.stopPropagation(); if (await bestaetigen(`${e.name} löschen?`)) { await api("DELETE", `/api/srv/${vid}/nginx/web/${encodeURIComponent(site)}?pfad=${encodeURIComponent((pfad ? pfad + "/" : "") + e.name)}`); laden(); } } }, "×") : "" }],
       d.eintraege, { klick: e => { if (e.ordner) { pfad = (pfad ? pfad + "/" : "") + e.name; laden(); } }, leer: "leer" }));
   };
   const hoch = h("input", { type: "file", multiple: true, onchange: async e => {
-    for (const f of e.target.files) { const fd = new FormData(); fd.append("datei", f); await versuch(() => api("POST", `/api/m/nginx/${vid}/web/${encodeURIComponent(site)}/hochladen?pfad=${encodeURIComponent(pfad)}`, fd)); }
+    for (const f of e.target.files) { const fd = new FormData(); fd.append("datei", f); await versuch(() => api("POST", `/api/srv/${vid}/nginx/web/${encodeURIComponent(site)}/hochladen?pfad=${encodeURIComponent(pfad)}`, fd)); }
     hinweis("hochgeladen"); laden();
   } });
   await laden();

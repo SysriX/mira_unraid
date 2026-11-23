@@ -19,7 +19,7 @@ from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import (JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, create_engine, select, text)
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
-VERSION = "0.3.1"
+VERSION = "0.4.0"
 DATA = os.environ.get("MIRA_DATA", "/config")
 KONFIG_DATEI = os.path.join(DATA, "mira.json")
 SCHLUESSEL_DATEI = os.path.join(DATA, "schluessel.key")
@@ -160,6 +160,7 @@ class Protokoll(Basis):
     details: Mapped[str] = mapped_column(Text, default="")
 
 
+NACH_DB_START: list = []     # Funktionen, die nach jedem Datenbankstart laufen (Migrationen)
 _engine = None
 _SessionLocal: sessionmaker | None = None
 
@@ -197,6 +198,11 @@ def db_starten() -> bool:
     _engine = engine_bauen(url)
     Basis.metadata.create_all(_engine)
     _SessionLocal = sessionmaker(_engine, expire_on_commit=False)
+    for f in NACH_DB_START:          # Migrationen (z. B. servers.migrate)
+        try:
+            f()
+        except Exception as e:  # noqa: BLE001
+            log("Migration fehlgeschlagen:", f.__module__, repr(e))
     return True
 
 

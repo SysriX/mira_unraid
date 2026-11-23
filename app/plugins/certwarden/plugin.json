@@ -1,0 +1,36 @@
+{
+  "id": "certwarden",
+  "name": "Cert Warden",
+  "title": "Zertifikate (ACME / Let's Encrypt)",
+  "version": "1.0.0",
+  "author": "SysriX",
+  "description": "Cert Warden in MIRA bedienen: Zertifikate mit Ablaufdaten, erneuern, neu anlegen, Aufträge, ACME-Konten und Schlüssel.",
+  "group": "Routing",
+  "order": 20,
+  "icon": "icon.svg",
+  "connect": {
+    "type": "certwarden",
+    "app": "certwarden",
+    "ports": [4055, 4050],
+    "hostnames": ["certwarden", "certwarden-unraid"],
+    "proxy": [
+      "/certwarden/api/status",
+      "/certwarden/api/v1/certificates",
+      "/certwarden/api/v1/orders/",
+      "/certwarden/api/v1/acmeaccounts",
+      "/certwarden/api/v1/acmeservers",
+      "/certwarden/api/v1/privatekeys",
+      "/certwarden/api/v1/app/challenges/providers"
+    ]
+  },
+  "ui": {
+    "styles": [],
+    "scripts": ["certwarden.js"],
+    "views": [
+      { "id": "overview", "title": "Übersicht" },
+      { "id": "certificates", "title": "Zertifikate" },
+      { "id": "accounts", "title": "ACME-Konten" },
+      { "id": "keys", "title": "Schlüssel" }
+    ]
+  }
+}

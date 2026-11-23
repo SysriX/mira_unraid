@@ -9,7 +9,8 @@ Plugin type "sysrix": the target app speaks the SysriX connect standard
   POST <pair> {username, password, client, role}  → {"token", "token_id", "role"}   (password is not stored)
   API calls with "Authorization: Bearer <token>" plus X-Acting-User / X-Acting-Role / X-Acting-IP.
 MIRA stores the token encrypted and forwards the plugin's API calls: /api/p/<connection id>/<path of the app>.
-See docs/PLUGINS.md.
+Other plugin types use a built-in connector (connectors.py), e.g. "certwarden": MIRA logs in with stored
+credentials and forwards the calls the same way. See docs/PLUGINS.md.
 """
 from __future__ import annotations
 
@@ -30,6 +31,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 import kern
 from anmeldung import rolle
+from connectors import CONNECTORS
 from kern import Basis, jetzt, sitzung
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -85,7 +87,7 @@ class Plugin:
         if not self.error:
             if not ID_RE.match(self.id):
                 self.error = "ungültige id (a–z, 0–9, _ und -, 2–32 Zeichen)"
-            elif (self.manifest.get("connect") or {}).get("type", "sysrix") != "sysrix":
+            elif (self.manifest.get("connect") or {}).get("type", "sysrix") not in ("sysrix", *CONNECTORS):
                 self.error = "Plugin-Typ wird von dieser MIRA-Version nicht unterstützt"
         self.hash = self._hash()
 
@@ -226,8 +228,15 @@ def _client(verify: bool, timeout: float = 15) -> httpx.Client:
     return httpx.Client(verify=verify, timeout=timeout, follow_redirects=False)
 
 
-def probe(url: str, app: str, verify: bool = False) -> dict:
-    """Reads /.well-known/sysrix-app and checks that the expected app answers."""
+def connector(p: "Plugin"):
+    """Built-in connector of a plugin, None for the SysriX standard."""
+    return CONNECTORS.get(p.connect()["type"])
+
+
+def probe(url: str, app: str, verify: bool = False, p: "Plugin | None" = None) -> dict:
+    """Reads /.well-known/sysrix-app and checks that the expected app answers (or asks the connector)."""
+    if p is not None and connector(p):
+        return connector(p).probe(url, verify)
     try:
         with _client(verify, 6) as c:
             r = c.get(url + "/.well-known/sysrix-app")
@@ -304,7 +313,7 @@ def _targets(p: Plugin, networks: list[str]) -> tuple[list[str], list[str]]:
                 urls.append(f"http://{host}")
             else:
                 urls.append(f"http://{host}:{port}")
-                if port in (8443, 9443):
+                if port in (8443, 9443) or port in getattr(connector(p), "https_ports", ()):
                     urls[-1] = f"https://{host}:{port}"
     return urls, [str(n) for n in nets]
 
@@ -315,8 +324,16 @@ async def discover(p: Plugin, networks: list[str]) -> dict:
     sem = asyncio.Semaphore(200)
     found: dict[str, dict] = {}
 
+    conn_type = connector(p)
+
     async def one(client: httpx.AsyncClient, url: str):
         async with sem:
+            if conn_type:
+                info = await conn_type.detect(client, url)
+                if info:
+                    found[url] = {"url": url, "name": info["name"], "version": info.get("version", ""),
+                                  "setup_needed": bool(info.get("setup_needed")), "instance": info.get("instance") or url}
+                return
             try:
                 r = await client.get(url + "/.well-known/sysrix-app")
                 if r.status_code == 200:
@@ -365,7 +382,7 @@ def plugins_list(u=Depends(rolle("leser"))):
                 "description": p.m.get("description", ""), "group": p.m.get("group", "Plugins"),
                 "author": p.m.get("author", ""), "source": p.source, "state": st, "error": p.error,
                 "hash": p.hash[:12], "icon": f"/plugins/{pid}/{p.m['icon']}" if p.m.get("icon") else None,
-                "app": p.connect()["app"], "views": ui.get("views", []),
+                "app": p.connect()["app"], "connect_type": p.connect()["type"], "views": ui.get("views", []),
                 "connections": [_conn_json(c) for c in conns if c.plugin_id == pid]}
         if st == "active":
             item["scripts"] = [f"/plugins/{pid}/{f}?v={p.hash[:10]}" for f in ui.get("scripts", [])]
@@ -419,7 +436,7 @@ async def plugin_probe(pid: str, req: Request, u=Depends(rolle("admin"))):
     p = _active(pid)
     d = await req.json()
     url = _norm_url(d.get("url"))
-    info = await asyncio.to_thread(probe, url, p.connect()["app"], bool(d.get("verify_tls")))
+    info = await asyncio.to_thread(probe, url, p.connect()["app"], bool(d.get("verify_tls")), p)
     return {"url": url, **info}
 
 
@@ -429,7 +446,9 @@ async def plugin_connect(pid: str, req: Request, u=Depends(rolle("admin"))):
     d = await req.json()
     url, verify = _norm_url(d.get("url")), bool(d.get("verify_tls"))
     app = p.connect()["app"]
-    info = await asyncio.to_thread(probe, url, app, verify)
+    info = await asyncio.to_thread(probe, url, app, verify, p)
+    if connector(p):
+        return await _connect_builtin(p, pid, d, url, verify, info, u)
     if info.get("setup_needed"):
         raise HTTPException(400, f"{info.get('name', app)} ist noch nicht eingerichtet – erst dort den ersten Admin anlegen")
     host = req.headers.get("x-forwarded-host") or req.url.hostname or "MIRA"
@@ -465,6 +484,30 @@ async def plugin_connect(pid: str, req: Request, u=Depends(rolle("admin"))):
     return out
 
 
+async def _connect_builtin(p, pid, d, url, verify, info, u):
+    body = {"username": (d.get("username") or "").strip(), "password": d.get("password") or "",
+            "role": d.get("role") if d.get("role") in LEVEL_RANK else "admin"}
+    if not body["username"] or not body["password"]:
+        raise HTTPException(400, "Benutzer und Passwort fehlen")
+    try:
+        res = await asyncio.to_thread(connector(p).pair, url, verify, body)
+    except HTTPException as e:
+        _audit(u, "Plugin verbinden fehlgeschlagen", f"{p.m.get('name', pid)} {url}", ok=False, details=str(e.detail))
+        raise
+    with sitzung() as s:
+        c = PluginConnection(plugin_id=pid, name=(d.get("name") or info.get("name") or pid).strip()[:128], base_url=url,
+                             verify_tls=verify, role=res["role"], remote_user=res["remote_user"],
+                             token_enc=kern.verschluesseln(res["secret"]), remote_version=str(res.get("version", "")),
+                             status=f"ok: verbunden ({info.get('name', pid)} {res.get('version', '')})", checked_at=jetzt(),
+                             created_by=u["name"])
+        s.add(c)
+        s.flush()
+        out = _conn_json(c)
+    _audit(u, "Plugin verbunden", f"{p.m.get('name', pid)} · {out['name']}",
+           details=f"{url}, Rolle {out['role']}, Anmeldung als {res['remote_user']}")
+    return out
+
+
 @router.put("/api/plugins/conns/{cid}")
 async def plugin_conn_update(cid: int, req: Request, u=Depends(rolle("admin"))):
     d = await req.json()
@@ -488,7 +531,10 @@ def plugin_conn_delete(cid: int, u=Depends(rolle("admin"))):
     c = _conn(cid)
     note = ""
     tok = kern.entschluesseln(c.token_enc) or {}
-    if tok.get("token_id"):        # revoke our own key in the app (works when the key has admin rights)
+    con = connector(plugin(c.plugin_id)) if _try_plugin(c.plugin_id) else None
+    if con:
+        note = con.unpair(c)
+    elif tok.get("token_id"):        # revoke our own key in the app (works when the key has admin rights)
         try:
             with _client(c.verify_tls, 8) as cl:
                 r = cl.delete(f"{c.base_url}/api/connect/tokens/{tok['token_id']}",
@@ -504,11 +550,27 @@ def plugin_conn_delete(cid: int, u=Depends(rolle("admin"))):
     return {"ok": True, "note": note}
 
 
+def _try_plugin(pid: str) -> bool:
+    try:
+        plugin(pid)
+        return True
+    except LookupError:
+        return False
+
+
 @router.post("/api/plugins/conns/{cid}/test")
 def plugin_conn_test(cid: int, u=Depends(rolle("leser"))):
     c = _conn(cid)
     p = plugin(c.plugin_id)
     ok, msg, info = True, "", None
+    if connector(p):
+        ok, msg, version = connector(p).check(c)
+        with sitzung() as s:
+            x = s.get(PluginConnection, cid)
+            x.status, x.checked_at = ("ok: " if ok else "fehler: ") + msg[:480], jetzt()
+            if version:
+                x.remote_version = version
+        return {"ok": ok, "meldung": msg}
     try:
         info = probe(c.base_url, p.connect()["app"], c.verify_tls)
         with _client(c.verify_tls, 8) as cl:
@@ -548,6 +610,9 @@ async def plugin_proxy(cid: int, path: str, req: Request):
     if not any(target.startswith(x) for x in p.connect()["proxy"]):
         raise HTTPException(403, "Dieser Pfad ist für das Plugin nicht freigegeben")
     level = ROLE_TO_LEVEL.get(u["rolle"], "read")
+    con = connector(p)
+    if con:
+        return await _proxy_builtin(con, c, p, u, req, target, level)
     headers = {"Authorization": f"Bearer {_token(c)}", "X-Acting-User": u["name"], "X-Acting-Role": level,
                "X-Acting-IP": u.get("ip", ""), "Accept": req.headers.get("accept", "application/json")}
     if req.headers.get("content-type"):
@@ -561,6 +626,49 @@ async def plugin_proxy(cid: int, path: str, req: Request):
         raise HTTPException(502, f"{c.name} ist nicht erreichbar ({e.__class__.__name__})") from e
     if r.status_code == 401:     # never let the app's 401 look like an expired MIRA login
         raise HTTPException(502, f"{c.name} lehnt den Zugang ab – Schlüssel widerrufen? Verbindung unter Plugins neu einrichten.")
+    out = {k: v for k, v in r.headers.items() if k.lower() in _HOP}
+    return Response(content=r.content, status_code=r.status_code, headers=out)
+
+
+# methods a key role may use with a built-in connector (the app itself knows no MIRA roles)
+_METHOD_LEVEL = {"GET": "read", "POST": "write", "PUT": "write", "PATCH": "write", "DELETE": "admin"}
+
+
+async def _proxy_builtin(con, c, p, u, req: Request, target: str, level: str):
+    need = _METHOD_LEVEL.get(req.method, "admin")
+    if LEVEL_RANK[need] > min(LEVEL_RANK.get(level, 1), LEVEL_RANK.get(c.role, 1)):
+        raise HTTPException(403, {"write": "Ändern", "admin": "Löschen"}.get(need, need)
+                            + " ist mit dieser Rolle bzw. Verbindung nicht erlaubt")
+    body = await req.body()
+    headers = {"accept": req.headers.get("accept", "application/json")}
+    if req.headers.get("content-type"):
+        headers["content-type"] = req.headers["content-type"]
+    try:
+        r = await asyncio.to_thread(con.request, c, req.method, target, list(req.query_params.multi_items()),
+                                    body or None, headers)
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"{c.name} ist nicht erreichbar ({e.__class__.__name__})") from e
+    except HTTPException as e:
+        raise HTTPException(502, f"{c.name}: {e.detail}") from e
+    if r.status_code == 401:
+        raise HTTPException(502, f"{c.name} lehnt die gespeicherte Anmeldung ab – Verbindung unter Plugins neu einrichten.")
+    if req.method != "GET":
+        ok = r.status_code < 400
+        detail = ""
+        if not ok:
+            try:
+                detail = str(r.json().get("message", ""))[:500]
+            except ValueError:
+                detail = r.text[:300]
+        _audit(u, f"{p.m.get('name', p.id)}: {req.method} {target}", c.name, ok=ok, details=detail or f"HTTP {r.status_code}")
+    if r.status_code >= 400:          # app errors as {"detail"} like MIRA's own – the UI shows the text
+        try:
+            msg = r.json().get("message")
+        except (ValueError, AttributeError):
+            msg = None
+        if msg:
+            return Response(content=json.dumps({"detail": f"{p.m.get('name', p.id)}: {msg}"}), status_code=r.status_code,
+                            media_type="application/json")
     out = {k: v for k, v in r.headers.items() if k.lower() in _HOP}
     return Response(content=r.content, status_code=r.status_code, headers=out)
 

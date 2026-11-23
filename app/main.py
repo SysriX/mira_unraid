@@ -16,6 +16,7 @@ import anmeldung  # noqa: E402
 import einrichtung  # noqa: E402
 import verwaltung  # noqa: E402
 import plugins  # noqa: E402
+import servers  # noqa: E402
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 
@@ -30,7 +31,7 @@ async def lebenszyklus(app):
         kern.log("Datenbank nicht erreichbar:", e)
     einrichtung.code_melden()
     plugins.scan()
-    kern.log(f"MIRA {kern.VERSION} bereit – Module: {', '.join(module.REGISTER)} – Plugins: {', '.join(plugins._plugins) or '–'}")
+    kern.log(f"MIRA {kern.VERSION} bereit – Module: {', '.join(module.REGISTER)} – Server: {len(servers.all_servers()) if kern.db_bereit() else '–'} – Plugins: {', '.join(plugins._plugins) or '–'}")
     yield
 
 
@@ -82,6 +83,8 @@ app.include_router(anmeldung.router)
 app.include_router(einrichtung.router)
 app.include_router(verwaltung.router)
 app.include_router(plugins.router)
+for r in servers.ROUTERS:
+    app.include_router(r)
 for m in module.REGISTER.values():
     if m.router:
         app.include_router(m.router)

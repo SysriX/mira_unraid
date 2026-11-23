@@ -115,8 +115,25 @@ POST /api/connect/pair   {"username", "password", "client": "MIRA (host)", "role
 
 **5. Prüfen** – `GET /api/me` mit dem Schlüssel → 200 (MIRA „Testen“).
 
+## Eingebaute Anschlüsse (fremde Programme)
+
+Programme, die den SysriX-Standard nicht sprechen, bindet MIRA über einen **eingebauten Anschluss** an (`app/connectors.py`). Das Plugin wählt ihn mit `"connect": {"type": "<name>"}`; Oberfläche, Freigabe, Assistent und Weiterleitung `/api/p/…` bleiben gleich.
+
+| `type` | Programm | Anmeldung |
+| --- | --- | --- |
+| `certwarden` | Cert Warden ab v0.31 (mitgeliefert: `app/plugins/certwarden/`) | Benutzer + Passwort werden verschlüsselt gespeichert; MIRA meldet sich an (`/certwarden/api/v1/app/auth/login`), schickt das Token als `Authorization: <token>` und erneuert es über das Sitzungs-Cookie |
+
+Unterschiede zum SysriX-Standard:
+
+- Das Programm kennt keine MIRA-Rollen. MIRA prüft selbst: `GET` ab *Leser*, `POST`/`PUT`/`PATCH` ab *Operator*, `DELETE` nur *Admin* – jeweils höchstens bis zur beim Verbinden gewählten Rolle.
+- Schreibende Aufrufe stehen im **MIRA-Protokoll** (Bereich `plugin`), weil das Programm den MIRA-Benutzer nicht kennt.
+- Fehlermeldungen des Programms (`{"message"}`) gibt MIRA als `{"detail"}` weiter, damit die Oberfläche sie anzeigt.
+- Beim Entfernen der Verbindung meldet MIRA sich ab und löscht die gespeicherten Zugangsdaten.
+
+Ein neuer Anschluss ist eine Klasse mit `probe`, `detect`, `pair`, `request`, `check`, `unpair` (siehe `CertWarden`) und ein Eintrag in `CONNECTORS`.
+
 ## Geplant
 
-- Plugin-Typ mit eigenem Python-Teil für fremde Programme ohne diesen Standard (z. B. OPNsense, Unraid, Proxmox direkt).
+- Weitere Anschlüsse für fremde Programme (z. B. Unraid, Proxmox direkt).
 - Die eingebauten Module als mitgelieferte Plugins (`app/plugins/`, automatisch freigegeben).
 - Signierte Plugins (Ed25519, wie die ALMA-Lizenzen): „von SysriX signiert“ statt nur Fingerabdruck.

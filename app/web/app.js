@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------ Hilfen
 const $ = (s, r = document) => r.querySelector(s);
 const ANSICHT = {};
-let ICH = null, MODULE = [], ARTEN = {};
+let ICH = null, MODULE = [], ARTEN = {}, SERVERS = [], SERVER_ARTEN = [];
 
 function h(tag, attrs, ...kinder) {
   const el = document.createElement(tag);
@@ -138,7 +138,10 @@ function tabs(namen, aktiv, wechsel) {
 }
 
 /** Verbindungs-Auswahl eines Moduls (merkt sich die letzte). */
-function verbindungen(typ) { return ((MODULE.find(m => m.typ === typ) || {}).verbindungen || []).filter(v => v.aktiv); }
+function verbindungen(typ) {
+  if (typ.startsWith("srv:")) return SERVERS.filter(s => s.kind === typ.slice(4) && s.enabled).map(s => ({ id: s.id, name: s.site ? `${s.name} · ${s.site}` : s.name, aktiv: true }));
+  return ((MODULE.find(m => m.typ === typ) || {}).verbindungen || []).filter(v => v.aktiv);
+}
 function verbAuswahl(typ, beiWechsel) {
   const vs = verbindungen(typ);
   if (!vs.length) return { id: null, el: null };
@@ -149,6 +152,12 @@ function verbAuswahl(typ, beiWechsel) {
   return { id, el };
 }
 function keineVerbindung(typ) {
+  if (typ.startsWith("srv:")) {
+    const kind = typ.slice(4), t = kind === "haproxy" ? "HAProxy" : "nginx";
+    return h("div", { class: "karte leer" }, h("p", {}, `Noch kein ${t}-Server eingetragen.`),
+      h("p", { class: "leise" }, kind === "haproxy" ? "HAProxy über haproxy-ui oder das HAProxy-Plugin einer OPNsense – beliebig viele nebeneinander." : "nginx lokal (Ordner + Docker-Socket) oder auf anderen Hosts über SSH – beliebig viele nebeneinander."),
+      darf("admin") ? h("button", { class: "p", onclick: () => serverDialog({ kind }) }, `${t}-Server hinzufügen`) : h("p", {}, "Ein Admin muss den Server eintragen."));
+  }
   const m = MODULE.find(x => x.typ === typ) || { titel: typ, beschreibung: "" };
   return h("div", { class: "karte leer" }, h("p", {}, `Für ${m.titel} ist noch keine Verbindung eingerichtet.`), h("p", { class: "leise" }, m.beschreibung),
     darf("admin") ? h("button", { class: "p", onclick: () => verbindungDialog({ typ }) }, `${m.titel} verbinden`) : h("p", {}, "Ein Admin muss die Verbindung anlegen."));
@@ -163,15 +172,18 @@ function themeWahl(klasse = "") {
 const NAVI = [
   ["", [["uebersicht", "Übersicht"]]],
   ["Identität", [["benutzer", "Benutzer", "ad"], ["gruppen", "Gruppen", "ad"], ["neu", "Neuer Mitarbeiter", "ad"]]],
-  ["Dienste", [["authentik", "Authentik", "authentik"], ["haproxy", "HAProxy", "haproxy"], ["nginx", "nginx", "nginx"],
-               ["grommunio", "grommunio", "grommunio"], ["exchange", "Exchange", "exchange"]]],
+  ["Dienste", [["authentik", "Authentik", "authentik"], ["grommunio", "grommunio", "grommunio"], ["exchange", "Exchange", "exchange"]]],
+  ["Routing", [["server", "Server"], ["haproxy", "HAProxy", "srv:haproxy"], ["nginx", "nginx", "srv:nginx"]]],
   ["MIRA", [["verbindungen", "Verbindungen"], ["zugang", "Zugang", null, "admin"], ["plugins", "Plugins", null, "admin"], ["einstellungen", "Einstellungen", null, "admin"],
             ["protokoll", "Protokoll", null, "operator"]]],
 ];
 
 function aktuelleRoute() { const [n, q] = location.hash.slice(1).split("?"); return { name: n || "uebersicht", q: new URLSearchParams(q || "") }; }
 
-async function ladeModule() { MODULE = (await api("GET", "/api/module")).module; }
+async function ladeModule() {
+  const [m, s] = await Promise.all([api("GET", "/api/module"), api("GET", "/api/servers").catch(() => ({ servers: [], access: [] }))]);
+  MODULE = m.module; SERVERS = s.servers; SERVER_ARTEN = s.access;
+}
 
 function rahmen() {
   const r = aktuelleRoute();
@@ -521,6 +533,7 @@ ANSICHT.verbindungen = { titel: "Verbindungen", zeigen: async main => {
   leeren(main, h("div", { class: "karte" }, h("h2", {}, "Verbindungen zu den Diensten", h("span", { class: "rechts" },
     darf("admin") ? h("button", { class: "p klein", onclick: () => verbindungDialog({}) }, "+ Neue Verbindung") : null)),
   h("p", { class: "leise klein-t" }, "Zugangsdaten werden verschlüsselt in der Datenbank gespeichert und nie wieder angezeigt. Der Schlüssel liegt in /config/schluessel.key – mit sichern!"),
+  h("p", { class: "leise klein-t" }, "HAProxy- und nginx-Instanzen stehen unter ", h("a", { href: "#server" }, "Routing › Server"), "."),
   tabelle([{ t: "", w: v => punkt(!v.aktiv ? "" : v.status.startsWith("ok") ? "ok" : v.status.startsWith("fehler") ? "bad" : "warn") },
     { t: "Name", w: v => v.name }, { t: "Dienst", w: v => v.titel },
     { t: "Ziel", w: v => h("span", { class: "klein-t" }, v.einstellungen.server || v.einstellungen.url || v.einstellungen.conf_pfad || "") },
@@ -596,7 +609,7 @@ ANSICHT.protokoll = { titel: "Protokoll", zeigen: async (main, q) => {
   const seite = Number(q.get("seite") || 0), bereich = q.get("bereich") || "", suche = q.get("suche") || "";
   const d = await api("GET", `/api/protokoll?seite=${seite}&bereich=${encodeURIComponent(bereich)}&suche=${encodeURIComponent(suche)}`);
   const s = eingabe("suche", suche, { placeholder: "Suchen …" });
-  const b = auswahl("bereich", [["", "alle Bereiche"], "anmeldung", "ad", "authentik", "haproxy", "nginx", "grommunio", "exchange", "ablauf", "zugang", "verbindungen", "einstellungen", "einrichtung"], bereich);
+  const b = auswahl("bereich", [["", "alle Bereiche"], "anmeldung", "ad", "authentik", "server", "haproxy", "nginx", "grommunio", "exchange", "plugin", "ablauf", "zugang", "verbindungen", "einstellungen", "einrichtung"], bereich);
   const los = (sei = 0) => { location.hash = `#protokoll?seite=${sei}&bereich=${b.value}&suche=${encodeURIComponent(s.value)}`; };
   s.addEventListener("keydown", e => { if (e.key === "Enter") los(); });
   b.addEventListener("change", () => los());

@@ -79,5 +79,6 @@ def registrieren(m: Modul) -> Modul:
 
 def laden():
     # Reihenfolge = Reihenfolge in der Oberfläche
-    from module import ad, authentik, haproxy, nginx, grommunio, exchange  # noqa: F401
+    # HAProxy und nginx sind seit 0.4.0 Server (server_store.py / servers.py), keine Verbindungen mehr
+    from module import ad, authentik, grommunio, exchange  # noqa: F401
     return REGISTER
