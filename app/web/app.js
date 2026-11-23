@@ -173,7 +173,7 @@ const NAVI = [
   ["", [["uebersicht", "Übersicht"]]],
   ["Identität", [["benutzer", "Benutzer", "ad"], ["gruppen", "Gruppen", "ad"], ["neu", "Neuer Mitarbeiter", "ad"]]],
   ["Dienste", [["authentik", "Authentik", "authentik"], ["grommunio", "grommunio", "grommunio"], ["exchange", "Exchange", "exchange"]]],
-  ["Routing", [["server", "Server"], ["haproxy", "HAProxy", "srv:haproxy"], ["nginx", "nginx", "srv:nginx"]]],
+  ["Routing", [["server", "Server"], ["haproxy", "HAProxy", "srv:haproxy"], ["nginx", "nginx", "srv:nginx"], ["migration", "HAProxy-Migration", null, "admin"]]],
   ["MIRA", [["verbindungen", "Verbindungen"], ["zugang", "Zugang", null, "admin"], ["plugins", "Plugins", null, "admin"], ["einstellungen", "Einstellungen", null, "admin"],
             ["protokoll", "Protokoll", null, "operator"]]],
 ];

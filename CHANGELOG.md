@@ -1,5 +1,18 @@
 # Änderungen
 
+## 0.5.0 – 2026-11-23
+
+### Neu: HAProxy-Migrationsassistent (Routing › HAProxy-Migration, nur Admins)
+- Konfiguration von einem HAProxy-Server in einen anderen übernehmen – in alle Richtungen: **haproxy-ui (Docker) ↔ OPNsense (os-haproxy)**, auch Docker → Docker und OPNsense → OPNsense.
+- Liest aus der Quelle **Backends** (mit Servern), **Adressen** (Name → Backend, aus `listen/dienste.map` bzw. aus Host-/SNI-Regeln der OPNsense, inkl. Zugang intern/extern) und **Frontends** mit **Bedingungen (ACLs)** und **Regeln**.
+- **Auswählen**, was übernommen wird (eingebaute Teile von haproxy-unraid sind abgewählt); beim Anhaken eines Frontends/einer Adresse werden die nötigen Backends mitgewählt.
+- **Umbenennen** von Backends, Servern, Frontends, Bedingungen und Regeln; alle Verweise (Standard-Backend, use_backend, Adressen, Bedingungen in Regeln, verknüpfte ACLs) ziehen mit, damit es nach dem Import genauso funktioniert.
+- **Namenskonflikte** mit dem Ziel werden angezeigt: umbenennen (Vorschlag `…_import`) oder „vorhandenes benutzen“; bei Adressen „ersetzen“ oder „überspringen“.
+- Ziel OPNsense: Server → Backends → ACLs → Aktionen → Frontends über die API; Adressen werden je eine Host-/SNI-ACL + use_backend-Aktion in einem gewählten (oder neuen) Frontend, intern/extern über eine ACL „interne Netze“; Zertifikat für TLS-Frontends wählbar; Regeln, die die OPNsense nicht abbilden kann, werden eigene Regeln (custom) mit eingebetteten Bedingungen.
+- Ziel haproxy-ui: Backends/Frontends als Block „MIRA-Import“ in `dienste.cfg`, Adressen in `listen/dienste.map`.
+- **Vorschau** vor dem Import; der Import speichert nur (Entwurf bzw. gespeichert) – danach wie gewohnt prüfen und übernehmen. Ergebnis im Protokoll.
+- Grenzen: Zertifikate, Listen (`listen/*.lst`), global/defaults und `listen`-Abschnitte werden nicht kopiert (Hinweise im Assistenten); mehrzeilige ACLs mit verschiedenen Prüfungen kann die OPNsense nicht als eine ACL abbilden (klare Meldung).
+
 ## 0.4.0 – 2026-11-23
 
 ### Neu: Mehrere Server (Routing › Server)

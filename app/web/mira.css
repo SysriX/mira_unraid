@@ -143,3 +143,6 @@ img.symbol{filter:drop-shadow(0 0 8px rgba(255,255,255,.16)) drop-shadow(0 2px 3
 .dreher{display:inline-block;width:12px;height:12px;border:2px solid var(--rand);border-top-color:var(--akzent);border-radius:50%;animation:dreh .8s linear infinite;vertical-align:-1px}
 @keyframes dreh{to{transform:rotate(360deg)}}
 .knopfreihe{display:inline-flex;gap:4px;flex-wrap:wrap}
+.mig-tab td{vertical-align:top}.mig-tab input[type=text],.mig-tab input:not([type]){min-width:140px}
+.mig-konflikt{color:var(--bad);font-size:12px}.mig-aus{opacity:.55}
+.mig-details{margin-top:6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 12px}

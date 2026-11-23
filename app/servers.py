@@ -29,6 +29,7 @@ from kern import Verbindung, jetzt, verschluesseln
 from module import Fehler, prot, wahr
 from module import haproxy as m_haproxy
 from module import nginx as m_nginx
+from module import haproxy_migration as m_mig
 from module import opnsense_haproxy as m_opn
 from server_store import KINDS, Server, all_servers, load, open_fs, values
 
@@ -313,6 +314,66 @@ def server_forget_key(sid: int, u=Depends(rolle("admin"))):
         name = x.name
     prot(u, "server", "SSH-Host-Schlüssel vergessen", name)
     return {"ok": True}
+
+
+# ------------------------------------------------------------------ HAProxy migration assistant
+def _hap(sid) -> tuple[Server, dict]:
+    x = _enabled(int(sid or 0))
+    if x.kind != "haproxy" or x.access not in ("haproxy-ui", "opnsense"):
+        raise HTTPException(400, f"„{x.name}“ ist kein HAProxy-Server")
+    return x, values(x)
+
+
+def _migration_plan(d: dict):
+    src, ws = _hap(d.get("source"))
+    tgt, wt = _hap(d.get("target"))
+    if src.id == tgt.id:
+        raise HTTPException(400, "Quelle und Ziel sind derselbe Server")
+    model, warnings = m_mig.read_source(src.access, ws)
+    chosen, w2 = m_mig.apply_choices(model, d.get("choices") or {})
+    tnames = m_mig.target_names(tgt.access, wt)
+    if tgt.access == "haproxy-ui":
+        plan = m_mig.plan_haproxy_ui(chosen, tnames)
+        warnings += [r["warn"] for r in plan["routes"] if r.get("warn")]
+    else:
+        plan = m_mig.plan_opnsense(chosen, tnames, d.get("options") or {})
+    return src, tgt, wt, plan, warnings + w2
+
+
+@router.post("/migration/read")
+async def migration_read(req: Request, u=Depends(rolle("admin"))):
+    d = await req.json()
+    src, ws = _hap(d.get("source"))
+    tgt, wt = _hap(d.get("target"))
+    if src.id == tgt.id:
+        raise HTTPException(400, "Quelle und Ziel sind derselbe Server")
+    try:
+        model, warnings = m_mig.read_source(src.access, ws)
+        tnames = m_mig.target_names(tgt.access, wt)
+        return {"source": _json(src), "target": _json(tgt), "model": model, "warnings": warnings, "target_names": tnames,
+                "target_frontends": m_mig.target_frontends(tgt.access, wt), "certificates": m_mig.target_certificates(tgt.access, wt)}
+    except (Fehler, HTTPException):
+        raise
+    except Exception as e:  # noqa: BLE001
+        raise Fehler(f"{type(e).__name__}: {e}") from e
+
+
+@router.post("/migration/preview")
+async def migration_preview(req: Request, u=Depends(rolle("admin"))):
+    d = await req.json()
+    src, tgt, wt, plan, warnings = _migration_plan(d)
+    return {"preview": m_mig.preview_text(tgt.access, plan), "warnings": warnings}
+
+
+@router.post("/migration/apply")
+async def migration_apply(req: Request, u=Depends(rolle("admin"))):
+    d = await req.json()
+    src, tgt, wt, plan, warnings = _migration_plan(d)
+    log = m_mig.apply_haproxy_ui(wt, plan) if tgt.access == "haproxy-ui" else m_mig.apply_opnsense(wt, plan)
+    ok = all(x["ok"] for x in log)
+    prot(u, "server", "HAProxy-Migration", f"{src.name} → {tgt.name}", ok,
+         "\n".join(("✓ " if x["ok"] else "✗ ") + x["text"] for x in log)[:6000])
+    return {"ok": ok, "log": log, "warnings": warnings, "target": _json(tgt)}
 
 
 ROUTERS = [router, m_haproxy.router, m_opn.router, m_nginx.router]
