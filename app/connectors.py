@@ -158,4 +158,6 @@ class CertWarden:
         return "Zugangsdaten in MIRA gelöscht (Cert Warden hat keine eigenen API-Schlüssel – ggf. Passwort dort ändern)"
 
 
-CONNECTORS = {"certwarden": CertWarden()}
+from connector_mysql import MySQL  # noqa: E402
+
+CONNECTORS = {"certwarden": CertWarden(), "mysql": MySQL()}

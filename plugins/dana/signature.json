@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "key_id": "sysrix",
+  "public_key": "uX87KIS2qhvI+QExNITB9/ZcxiUuFC7+rKbenCdpf1s=",
+  "id": "dana",
+  "version": "1.0.0",
+  "fingerprint": "60238597592a87517d3b50c91b08a62a476eee64c0c943d5e32988deaafb563a",
+  "signature": "MhZ4HLM/dd17mIk6OBSFJxVc8uJQ7Qzbq7UbYhW/PKEBxXfM7L8YORUArZcVazjgUXtPwhazaTXDRpmpVpgrAg==",
+  "signed_at": "2026-11-27T11:55:53+00:00"
+}

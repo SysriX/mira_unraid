@@ -1,5 +1,18 @@
 # Änderungen
 
+## 0.7.0 – 2026-11-27
+
+### Neu: DANA – MySQL- und MariaDB-Server in MIRA verwalten (Plugin)
+- Eingebauter Anschluss **`mysql`** (`app/connector_mysql.py`): MIRA spricht selbst mit MySQL/MariaDB (PyMySQL), es braucht kein weiteres Programm. Jeder Datenbank-Server ist eine Plugin-Verbindung – **beliebig viele** nebeneinander, oben umschaltbar.
+- Plugin **DANA** (Ordner `plugins/dana/`, signiert): Server-Übersicht (Version, Laufzeit, Verbindungen, Größe), **Datenbanken** anlegen/Sortierung ändern/löschen, **Tabellen** (Liste mit Größe/Zeilen, Mehrfachauswahl: Export, Optimieren, Leeren, Löschen), **Daten** blättern/sortieren/suchen/WHERE-Filter, Zeilen einfügen/bearbeiten/kopieren/löschen (auch NULL, ENUM, Binärdaten als Hex), **Struktur** (Spalten, Indizes, Fremdschlüssel, Trigger, CREATE-Anweisung) mit Spalten/Index anlegen, ändern, löschen, **neue Tabelle** mit Spalten-Editor und SQL-Vorschau, **Vorgänge** (umbenennen, Kommentar, Engine, Sortierung, AUTO_INCREMENT, Optimieren/Analysieren/Prüfen/Reparieren, Leeren, Löschen), **SQL-Konsole** (mehrere Anweisungen, DELIMITER, mehrere Ergebnismengen, Verlauf, Strg+Enter), **Export** als SQL/SQL.gz (Struktur, Daten, Ansichten, Trigger, Prozeduren) oder CSV, **Import** von .sql/.sql.gz, **Benutzer & Rechte** (anlegen mit eigener Datenbank, Passwort, sperren, umbenennen, Rechte vergeben/entziehen), **Status** (Prozesse mit Beenden, Variablen, Statuswerte).
+- Rollen: *Leser* sehen alles und dürfen genau eine SELECT/SHOW/DESCRIBE/EXPLAIN-Abfrage in einer READ-ONLY-Transaktion ausführen; *Operator* ändert Daten, Struktur und nutzt die SQL-Konsole; *Admin* darf zusätzlich löschen (Datenbanken, Tabellen, Spalten, Indizes, Benutzer), leeren und Prozesse beenden. Darüber hinaus gelten die Rechte des Datenbank-Benutzers selbst.
+- Assistent: Suche im Netz über die Server-Begrüßung auf Port 3306/3307 (weitere Ports mit `netz:port`), auch Server, die MIRA (noch) nicht zulassen, werden mit Hinweis gezeigt. Zugangsdaten verschlüsselt in MIRA; TLS wird benutzt, wenn der Server es anbietet (Zertifikat wahlweise geprüft).
+
+### Plugin-System
+- Anschlüsse können eigene Adressen haben (`norm_url`, `scheme`) – z. B. `mysql://host:3306` statt http.
+- `plugin.json` › `connect` kennt neue Texte für den Assistenten: `address_hint`, `login_label`, `login_note`, `tls_label`, `tls_hint`, `search_note`.
+- Der Assistent schlägt bei eingebauten Anschlüssen den Namen der Verbindung aus Programm und Adresse vor.
+
 ## 0.5.0 – 2026-11-23
 
 ### Neu: HAProxy-Migrationsassistent (Routing › HAProxy-Migration, nur Admins)

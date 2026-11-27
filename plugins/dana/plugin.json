@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "id": "dana",
+  "name": "DANA",
+  "title": "Datenbanken – MySQL & MariaDB",
+  "version": "1.0.0",
+  "author": "SysriX",
+  "description": "Beliebig viele MySQL- und MariaDB-Server in MIRA verwalten – wie phpMyAdmin: Datenbanken, Tabellen, Daten bearbeiten, Struktur, SQL-Konsole, Export/Import, Benutzer und Rechte, Prozesse.",
+  "homepage": "https://github.com/SysriX/mira_unraid",
+  "mira_min": "0.7.0",
+  "group": "Daten",
+  "order": 30,
+  "icon": "icon.svg",
+  "connect": {
+    "type": "mysql",
+    "app": "mysql",
+    "ports": [3306, 3307],
+    "hostnames": ["mariadb", "mysql", "db"],
+    "proxy": ["/api/db/"],
+    "address_hint": "z. B. <IP_MariaDB>:3306",
+    "login_label": "Datenbank-Benutzer",
+    "tls_label": "TLS-Zertifikat prüfen",
+    "tls_hint": "Server-Zertifikat muss gültig sein; sonst verschlüsselt MIRA, wenn der Server TLS kann, ohne Prüfung",
+    "search_note": "Sucht MySQL/MariaDB auf Port 3306 und 3307 (weitere Ports: Netz mit :Port angeben). Jeder Server ist eine eigene Verbindung – beliebig viele.",
+    "login_note": "MIRA speichert Benutzer und Passwort verschlüsselt und meldet sich bei jedem Aufruf selbst am Server an. Der Benutzer braucht passende Rechte und muss sich von der Adresse von MIRA aus anmelden dürfen (z. B. 'mira'@'<IP_MIRA>'). Was ein MIRA-Benutzer darf, richtet sich nach seiner Rolle in MIRA und den Rechten oben: Lesen = nur ansehen und SELECT, Bearbeiten = Daten/Struktur/SQL, Admin = zusätzlich löschen, Benutzer und Prozesse."
+  },
+  "ui": {
+    "styles": ["dana.css"],
+    "scripts": ["dana.js"],
+    "views": [
+      { "id": "overview", "title": "Server" },
+      { "id": "sql", "title": "SQL" },
+      { "id": "users", "title": "Benutzer", "level": "admin" },
+      { "id": "status", "title": "Status" },
+      { "id": "database", "title": "Datenbank", "hidden": true },
+      { "id": "table", "title": "Tabelle", "hidden": true }
+    ]
+  }
+}

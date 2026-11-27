@@ -10,6 +10,8 @@ Weitere Unraid-Pakete: [haproxy-unraid](https://github.com/SysriX/haproxy_unraid
 
 > **Stand 0.5.0:** HAProxy-Migrationsassistent (haproxy-ui ↔ OPNsense, mit Auswahl und Umbenennen) – gegen nachgebaute Schnittstellen getestet, gegen echte Server noch nicht.
 >
+> **Stand 0.7.0:** Plugin **DANA** – beliebig viele MySQL-/MariaDB-Server verwalten (wie phpMyAdmin), getestet gegen MariaDB 11.4.
+
 > **Stand 0.4.0:** mehrere Server (HAProxy über haproxy-ui oder OPNsense, nginx lokal oder per SSH) mit Migration der bisherigen Verbindungen, Cert Warden als mitgeliefertes Plugin. Lokal gegen nachgebaute Cert-Warden-/OPNsense-Schnittstellen getestet – **gegen echte OPNsense, Cert Warden und SSH-Hosts noch ungetestet.** Änderungen: [CHANGELOG.md](CHANGELOG.md).
 >
 > **Stand 0.3.0:** Plugin-System (getestet mit dem VERA-Plugin gegen eine nachgebaute OPNsense). **Stand 0.1.0:** erste Version. Einrichtung, Anmeldung, Verbindungen, HAProxy (über haproxy-ui) und nginx sind lokal getestet. **AD/Samba, Authentik, grommunio und Exchange sind noch nicht gegen echte Server getestet.**
@@ -26,6 +28,7 @@ Weitere Unraid-Pakete: [haproxy-unraid](https://github.com/SysriX/haproxy_unraid
 | **Server** | beliebig viele HAProxy- und nginx-Instanzen in einer Liste (Name, Art, Zugang, Adresse, Standort): testen, **prüfen**, **übernehmen/neu laden** je Server; oben in HAProxy/nginx umschalten |
 | **HAProxy (OPNsense)** | HAProxy-Plugin der OPNsense über deren API: Status/Statistik, **Frontends, Backends, Server, ACLs, Aktionen** anlegen/ändern/ein-aus/löschen, `haproxy -c` prüfen, Unterschiede, **Übernehmen** nur nach fehlerfreier Prüfung |
 | **Cert Warden** | mitgeliefertes Plugin: Zertifikate mit Ablaufdaten, **jetzt erneuern**, neu anlegen, Aufträge (Status, erneut versuchen, widerrufen, PEM), ACME-Konten (anlegen, registrieren), Schlüssel |
+| **Datenbanken (DANA)** | Plugin für **MySQL und MariaDB**, beliebig viele Server: Datenbanken, Tabellen, Daten blättern/suchen/bearbeiten, Struktur (Spalten, Indizes), SQL-Konsole, Export/Import (SQL, SQL.gz, CSV), Benutzer und Rechte, Prozesse und Variablen. Siehe [plugins/dana](plugins/dana/README.md) |
 | **HAProxy-Migration** | Konfiguration von einem HAProxy in einen anderen übernehmen (haproxy-ui-Container ↔ OPNsense-Plugin, auch gleichartig): Backends, Server, Adressen, Frontends, Bedingungen und Regeln **auswählen** und **umbenennen** – Verweise ziehen mit; Konflikte mit dem Ziel lösen, Vorschau, Import als Entwurf |
 | **HAProxy** | über [haproxy-ui](https://github.com/SysriX/haproxy-ui_unraid): Status, Backends/Server, Zertifikate, Dienste-Tabelle, Unterschiede, **Prüfen / Übernehmen / Zurückspringen** (mit automatischem Rücksprung), Dateien. Der Assistent „Neue Adresse“ bleibt in haproxy-ui |
 | **nginx** | lokal (Ordner + Docker-Socket) oder **per SSH** auf anderen Hosts (SFTP, sudo oder `docker exec`). Hosts als Reverse-Proxy, Webseite, PHP oder Umleitung – HTTPS, HTTP→HTTPS, WebSockets, PROXY-Protokoll, echte Client-IP, Upload-Grenze, Sicherheits-Header, weitere Pfade, eigene Zeilen; **Vorschau**; Speichern = Datei schreiben → `nginx -t` → bei Fehler alter Stand zurück → `reload`. Dateien statischer Seiten hochladen. Von Hand geschriebene Dateien als Text bearbeiten |
@@ -87,6 +90,7 @@ Beim ersten Start von 0.4.0 werden die bisherigen HAProxy- und nginx-**Verbindun
 | nginx (SSH) | SSH-Zugang (Passwort oder Schlüssel) mit Schreibrecht auf den Konfigurationsordner; `nginx -t`/`-s reload` direkt, mit `sudo -n` oder per `docker exec` |
 | Cert Warden | ab v0.31, lokales Konto (Benutzer + Passwort; OIDC geht für MIRA nicht), Adresse mit Port, z. B. `https://<IP_CertWarden>:4055` |
 | grommunio | Admin-Konto der Admin-Oberfläche (Port 8443) |
+| DANA (MySQL/MariaDB) | Datenbank-Benutzer, der sich von MIRA aus anmelden darf (z. B. `'mira'@'<IP_MIRA>'`), mit den Rechten, die man in MIRA nutzen will (für alles: `ALL PRIVILEGES ON *.* WITH GRANT OPTION`) |
 | Plugins | das jeweilige Programm (z. B. VERA ab 1.1.0) mit einem Admin-Konto für die einmalige Kopplung |
 | Exchange | **WinRM** auf dem Exchange-Server (`winrm quickconfig`), Konto in „Organization Management“ bzw. „Recipient Management“; Standard: WinRM + Snap-In mit NTLM. Alternativ der offizielle Endpunkt `/PowerShell` (meist Kerberos) |
 

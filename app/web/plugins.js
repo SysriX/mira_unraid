@@ -161,7 +161,7 @@ async function pluginStart(main, pid) {
 
 async function pluginVerbindungDialog(p, c) {
   const f = h("div", {}, h("div", { class: "raster" }, feld("Name", eingabe("name", c.name)), feld("Adresse", eingabe("base_url", c.base_url))),
-    haken("Zertifikat prüfen", c.verify_tls, "nur bei HTTPS mit gültigem Zertifikat", "verify_tls").el,
+    haken((p.setup || {}).tls_label || "Zertifikat prüfen", c.verify_tls, (p.setup || {}).tls_hint || "nur bei HTTPS mit gültigem Zertifikat", "verify_tls").el,
     h("p", { class: "leise klein-t" }, `Verbunden von ${c.created_by} über den ${p.name}-Admin „${c.remote_user}“ · Rolle ${c.role}. Für andere Rechte: entfernen und neu verbinden.`));
   const r = await dialog(`${p.name} · ${c.name}`, f, [
     ["Entfernen", async () => {
@@ -180,16 +180,20 @@ async function pluginAssistent(p) {
   const status = h("div", { class: "klein-t leise" });
   const netze = eingabe("networks", "", { placeholder: "leer = eigenes Netz · z. B. 192.168.10.0/24 192.168.20.0/24:8443" });
   const eigen = p.connect_type && p.connect_type !== "sysrix";
-  const url = eingabe("url", "", { placeholder: eigen ? `z. B. https://<IP_${p.name.replace(/\s+/g, "")}>:4055` : "z. B. http://<IP_VERA>:8080" });
+  const S = p.setup || {};
+  const url = eingabe("url", "", { placeholder: S.address_hint || (eigen ? `z. B. https://<IP_${p.name.replace(/\s+/g, "")}>:4055` : "z. B. http://<IP_VERA>:8080") });
   const urlInfo = h("div", { class: "klein-t" });
   const name = eingabe("name", p.name);
+  let nameSelbst = false;
+  name.addEventListener("input", () => { nameSelbst = true; });
+  const nameVorschlag = (x, adr) => { if (!nameSelbst && eigen) name.value = `${x.name.replace(/ \(.*\)$/, "")} ${String(adr).replace(/^[a-z]+:\/\//, "").replace(/:\d+$/, "")}`; };
   const login = h("div", {},
     h("div", { class: "raster" }, feld("Name in MIRA", name),
-      feld(`${p.name}-Admin`, eingabe("username", "", { autocomplete: "off" })),
+      feld(S.login_label || `${p.name}-Admin`, eingabe("username", "", { autocomplete: "off" })),
       feld("Passwort", eingabe("password", "", { type: "password", autocomplete: "new-password" })),
       feld("Rechte für MIRA", auswahl("role", [["admin", "Admin (alles, wie direkt in " + p.name + ")"], ["write", "Bearbeiten"], ["read", "Nur lesen"]], "admin"))),
-    haken("Zertifikat prüfen", false, "nur bei HTTPS mit gültigem Zertifikat", "verify_tls").el,
-    h("p", { class: "leise klein-t" }, eigen
+    haken(S.tls_label || "Zertifikat prüfen", false, S.tls_hint || "nur bei HTTPS mit gültigem Zertifikat", "verify_tls").el,
+    h("p", { class: "leise klein-t" }, S.login_note ? S.login_note : eigen
       ? `${p.name} kennt keine API-Schlüssel für die Verwaltung. MIRA speichert Benutzer und Passwort deshalb verschlüsselt und meldet sich selbst an (nur lokale Konten). Was ein MIRA-Benutzer darf, richtet sich nach seiner Rolle in MIRA und den Rechten oben.`
       : `Benutzer und Passwort werden nur einmal an ${p.name} geschickt und nicht gespeichert. ${p.name} stellt MIRA dafür einen eigenen Schlüssel aus – widerrufbar in ${p.name} unter „Verbundene Apps“. Was ein MIRA-Benutzer darf, richtet sich zusätzlich nach seiner Rolle in MIRA.`));
 
@@ -205,25 +209,25 @@ async function pluginAssistent(p) {
       const r = await api("POST", `/api/plugins/${p.id}/discover`, { networks: netze.value });
       leeren(status, `${r.checked} Adressen geprüft (${r.networks.join(", ") || "nur Namen"}) – ${r.found.length ? r.found.length + " gefunden" : "nichts gefunden, Adresse unten eingeben"}.`);
       for (const x of r.found) {
-        const el = h("div", { class: "fund klick", onclick: () => waehle(x.url, el) },
+        const el = h("div", { class: "fund klick", onclick: () => { waehle(x.url, el); nameVorschlag(x, x.url); } },
           punkt(x.setup_needed ? "warn" : "ok"), h("b", {}, x.url), " ", h("span", { class: "leise" }, `${x.name} ${x.version}`),
           x.setup_needed ? marke("noch nicht eingerichtet", "warn") : null, x.connected ? marke("schon verbunden") : null,
           x.also ? h("span", { class: "leise klein-t" }, "auch unter " + x.also.join(", ")) : null);
         liste.append(el);
-        if (r.found.length === 1 && !x.connected) waehle(x.url, el);
+        if (r.found.length === 1 && !x.connected) { waehle(x.url, el); nameVorschlag(x, x.url); }
       }
     } catch (e) { leeren(status, punkt("bad"), " ", e.message); }
   };
   url.addEventListener("input", () => { if (url.value) waehle(null); leeren(urlInfo); });
   const pruefen = async () => {
     leeren(urlInfo, "prüfe …");
-    try { const r = await api("POST", `/api/plugins/${p.id}/probe`, { url: url.value }); leeren(urlInfo, punkt(r.setup_needed ? "warn" : "ok"), ` ${r.name} ${r.version} gefunden`, r.setup_needed ? " – noch nicht eingerichtet" : ""); }
+    try { const r = await api("POST", `/api/plugins/${p.id}/probe`, { url: url.value }); nameVorschlag(r, r.url); leeren(urlInfo, punkt(r.setup_needed ? "warn" : "ok"), ` ${r.name} ${r.version} gefunden`, r.setup_needed ? " – noch nicht eingerichtet" : ""); }
     catch (e) { leeren(urlInfo, punkt("bad"), " ", e.message); }
   };
 
   const inhalt = h("div", { class: "plugin-assistent" },
     pluginKopf(p),
-    h("h4", {}, `1 · ${p.name} im Netz finden`), status, liste,
+    h("h4", {}, `1 · ${p.name} im Netz finden`), S.search_note ? h("p", { class: "leise klein-t" }, S.search_note) : null, status, liste,
     h("div", { class: "leiste" }, netze, h("button", { class: "klein", onclick: suchen }, "Suchen")),
     h("h4", {}, "… oder Adresse selbst eingeben"),
     h("div", { class: "leiste" }, url, h("button", { class: "klein", onclick: pruefen }, "Prüfen")), urlInfo,

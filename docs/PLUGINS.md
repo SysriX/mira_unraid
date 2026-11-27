@@ -135,6 +135,8 @@ Programme, die den SysriX-Standard nicht sprechen, bindet MIRA über einen **ein
 | --- | --- | --- |
 | `certwarden` | Cert Warden ab v0.31 (Plugin im Repository [certwarden_unraid](https://github.com/SysriX/certwarden_unraid), Ordner `plugin_mira/`) | Benutzer + Passwort werden verschlüsselt gespeichert; MIRA meldet sich an (`/certwarden/api/v1/app/auth/login`), schickt das Token als `Authorization: <token>` und erneuert es über das Sitzungs-Cookie |
 
+| `mysql` | MySQL ab 5.7 / MariaDB ab 10.3 – Plugin **DANA** in `plugins/dana/` dieses Repositorys | Datenbank-Benutzer + Passwort verschlüsselt gespeichert; MIRA verbindet sich je Aufruf selbst (PyMySQL, TLS wenn angeboten). Es gibt kein Programm dazwischen: der Anschluss beantwortet die Pfade `/api/db/…` selbst. Adresse `mysql://host:port` (Eingabe `host:port` genügt), Suche über die Server-Begrüßung |
+
 Unterschiede zum SysriX-Standard:
 
 - Das Programm kennt keine MIRA-Rollen. MIRA prüft selbst: `GET` ab *Leser*, `POST`/`PUT`/`PATCH` ab *Operator*, `DELETE` nur *Admin* – jeweils höchstens bis zur beim Verbinden gewählten Rolle.
@@ -142,7 +144,17 @@ Unterschiede zum SysriX-Standard:
 - Fehlermeldungen des Programms (`{"message"}`) gibt MIRA als `{"detail"}` weiter, damit die Oberfläche sie anzeigt.
 - Beim Entfernen der Verbindung meldet MIRA sich ab und löscht die gespeicherten Zugangsdaten.
 
-Ein neuer Anschluss ist eine Klasse mit `probe`, `detect`, `pair`, `request`, `check`, `unpair` (siehe `CertWarden`) und ein Eintrag in `CONNECTORS`.
+Ein neuer Anschluss ist eine Klasse mit `probe`, `detect`, `pair`, `request`, `check`, `unpair` (siehe `CertWarden`) und ein Eintrag in `CONNECTORS`. Optional: `norm_url(url)` (eigenes Adressformat) und `scheme` (Adressen der Netzsuche als `<scheme>://host:port`); `request` darf die Antwort auch selbst erzeugen (`httpx.Response`, siehe `connector_mysql.py`).
+
+### Texte für den Assistenten (optional, in `connect`)
+
+| Feld | Bedeutung |
+| --- | --- |
+| `address_hint` | Platzhalter im Adressfeld |
+| `login_label` | Beschriftung des Benutzerfelds (Standard „<Name>-Admin“) |
+| `login_note` | Erklärung unter der Anmeldung |
+| `tls_label`, `tls_hint` | Beschriftung/Hilfe des Hakens „Zertifikat prüfen“ |
+| `search_note` | Hinweis über der Netzsuche |
 
 ## Geplant
 

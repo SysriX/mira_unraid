@@ -248,6 +248,14 @@ def _client(verify: bool, timeout: float = 15) -> httpx.Client:
     return httpx.Client(verify=verify, timeout=timeout, follow_redirects=False)
 
 
+def _url_for(p: "Plugin", url: str) -> str:
+    """Normalise an address – connectors with their own scheme (mysql://host:port) bring their own rules."""
+    con = connector(p)
+    if con is not None and hasattr(con, "norm_url"):
+        return con.norm_url(url)
+    return _norm_url(url)
+
+
 def connector(p: "Plugin"):
     """Built-in connector of a plugin, None for the SysriX standard."""
     return CONNECTORS.get(p.connect()["type"])
@@ -327,7 +335,10 @@ def _targets(p: Plugin, networks: list[str]) -> tuple[list[str], list[str]]:
     for host in hosts:
         for port in ports:
             port = int(port)
-            if port == 443:
+            scheme = getattr(connector(p), "scheme", None)
+            if scheme:
+                urls.append(f"{scheme}://{host}:{port}")
+            elif port == 443:
                 urls.append(f"https://{host}")
             elif port == 80:
                 urls.append(f"http://{host}")
@@ -410,6 +421,8 @@ def plugins_list(u=Depends(rolle("leser"))):
                 "removable": p.source == "folder",
                 "hash": p.hash[:12], "icon": f"/plugins/{pid}/{p.m['icon']}" if p.m.get("icon") else None,
                 "app": p.connect()["app"], "connect_type": p.connect()["type"], "views": ui.get("views", []),
+                "setup": {k: p.connect().get(k) for k in ("address_hint", "login_label", "login_note", "tls_label",
+                                                         "tls_hint", "search_note") if p.connect().get(k)},
                 "connections": [_conn_json(c) for c in conns if c.plugin_id == pid]}
         if st == "active":
             item["scripts"] = [f"/plugins/{pid}/{f}?v={p.hash[:10]}" for f in ui.get("scripts", [])]
@@ -519,7 +532,7 @@ async def plugin_discover(pid: str, req: Request, u=Depends(rolle("admin"))):
 async def plugin_probe(pid: str, req: Request, u=Depends(rolle("admin"))):
     p = _active(pid)
     d = await req.json()
-    url = _norm_url(d.get("url"))
+    url = _url_for(p, d.get("url"))
     info = await asyncio.to_thread(probe, url, p.connect()["app"], bool(d.get("verify_tls")), p)
     return {"url": url, **info}
 
@@ -528,7 +541,7 @@ async def plugin_probe(pid: str, req: Request, u=Depends(rolle("admin"))):
 async def plugin_connect(pid: str, req: Request, u=Depends(rolle("admin"))):
     p = _active(pid)
     d = await req.json()
-    url, verify = _norm_url(d.get("url")), bool(d.get("verify_tls"))
+    url, verify = _url_for(p, d.get("url")), bool(d.get("verify_tls"))
     app = p.connect()["app"]
     info = await asyncio.to_thread(probe, url, app, verify, p)
     if connector(p):
@@ -602,7 +615,7 @@ async def plugin_conn_update(cid: int, req: Request, u=Depends(rolle("admin"))):
         if d.get("name"):
             c.name = d["name"].strip()[:128]
         if d.get("base_url"):
-            c.base_url = _norm_url(d["base_url"])
+            c.base_url = _url_for(plugin(c.plugin_id), d["base_url"]) if _try_plugin(c.plugin_id) else _norm_url(d["base_url"])
         if "verify_tls" in d:
             c.verify_tls = bool(d["verify_tls"])
         out = _conn_json(c)
