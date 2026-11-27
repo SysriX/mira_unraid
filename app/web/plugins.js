@@ -50,7 +50,7 @@ function naviGruppen() {
   for (const p of PLUGINS) {
     if (p.state === "active" && p.connections.length && !p.loadError) {
       extra.push([p.name, [
-        ...p.views.map(v => [`${p.id}.${v.id}`, v.title, null, v.level ? LEVEL_ROLE[v.level] : null]),
+        ...p.views.filter(v => !v.hidden).map(v => [`${p.id}.${v.id}`, v.title, null, v.level ? LEVEL_ROLE[v.level] : null]),
         [p.id, "Verbindung", null, "admin"]]]);
     } else if (p.state === "active") {
       extra.push([p.name, [[p.id, p.loadError ? "Fehler" : "Einrichten", null, null, { aus: true, zeichen: "neu", icon: p.icon }]]]);
@@ -142,7 +142,7 @@ async function pluginStart(main, pid) {
   }
   leeren(main,
     h("div", { class: "karte" }, pluginKopf(p),
-      h("div", { class: "kacheln" }, p.views.filter(v => !v.level || darf(LEVEL_ROLE[v.level])).map(v =>
+      h("div", { class: "kacheln" }, p.views.filter(v => !v.hidden && (!v.level || darf(LEVEL_ROLE[v.level]))).map(v =>
         h("div", { class: "kachel klick", onclick: () => { location.hash = `#${p.id}.${v.id}`; } }, h("div", { class: "t" }, v.title))))),
     h("div", { class: "karte" }, h("h2", {}, "Verbindungen", h("span", { class: "rechts" },
       a ? h("button", { class: "klein", onclick: () => pluginAssistent(p) }, `+ Weitere ${p.name} verbinden`) : null)),
@@ -238,7 +238,7 @@ async function pluginAssistent(p) {
   if (r && r !== true) {
     localStorage.setItem("mira.plugin." + p.id, r.id);
     await ladePlugins();
-    const first = pluginById(p.id).views[0];
+    const first = pluginById(p.id).views.find(v => !v.hidden);
     location.hash = first ? `#${p.id}.${first.id}` : `#${p.id}`;
     zeige();
   }
