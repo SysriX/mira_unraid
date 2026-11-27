@@ -15,7 +15,6 @@ credentials and forwards the calls the same way. See docs/PLUGINS.md.
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import ipaddress
 import json
 import os
@@ -30,6 +29,7 @@ from sqlalchemy import Boolean, DateTime, Integer, String, Text, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 import kern
+import plugin_format as pf
 from anmeldung import rolle
 from connectors import CONNECTORS
 from kern import Basis, jetzt, sitzung
@@ -78,6 +78,7 @@ class Plugin:
         self.error = ""
         self.manifest: dict = {}
         self.hash = ""
+        self.signature = pf.read_signature(folder)
         try:
             with open(os.path.join(folder, "plugin.json"), encoding="utf-8") as f:
                 self.manifest = json.load(f)
@@ -89,22 +90,10 @@ class Plugin:
                 self.error = "ungültige id (a–z, 0–9, _ und -, 2–32 Zeichen)"
             elif (self.manifest.get("connect") or {}).get("type", "sysrix") not in ("sysrix", *CONNECTORS):
                 self.error = "Plugin-Typ wird von dieser MIRA-Version nicht unterstützt"
-        self.hash = self._hash()
-
-    def _hash(self) -> str:
-        """Fingerprint of all files – a changed plugin has to be approved again."""
-        h = hashlib.sha256()
-        for root, dirs, files in os.walk(self.dir):
-            dirs.sort()
-            for name in sorted(files):
-                p = os.path.join(root, name)
-                h.update(os.path.relpath(p, self.dir).replace("\\", "/").encode())
-                try:
-                    with open(p, "rb") as f:
-                        h.update(hashlib.sha256(f.read()).digest())
-                except OSError:
-                    pass
-        return h.hexdigest()
+            elif self.manifest.get("mira_min") and pf.newer(str(self.manifest["mira_min"]), kern.VERSION):
+                self.error = f"braucht MIRA {self.manifest['mira_min']} oder neuer (installiert: {kern.VERSION})"
+        # fingerprint of all files (format 1, see plugin_format.py) – a changed plugin has to be approved again
+        self.hash = pf.fingerprint_dir(folder)
 
     @property
     def m(self) -> dict:
@@ -136,6 +125,8 @@ def scan() -> dict[str, Plugin]:
         if not os.path.isdir(base):
             continue
         for name in sorted(os.listdir(base)):
+            if name.startswith("."):                  # .staging / .backup / .trash of the catalog installer
+                continue
             d = os.path.join(base, name)
             if os.path.isdir(d) and os.path.isfile(os.path.join(d, "plugin.json")):
                 p = Plugin(d, source)
@@ -165,10 +156,39 @@ def _states() -> dict[str, PluginState]:
         return out
 
 
-def state_of(p: Plugin, st: PluginState | None) -> str:
+# ------------------------------------------------------------------ trust (signed plugins)
+def trust() -> dict:
+    """Trusted publisher keys (SysriX built in) and what signed plugins may do."""
+    t = (kern.einstellung("plugin_trust", {}) if kern.db_bereit() else {}) or {}
+    own = [k for k in (t.get("keys") or []) if k.get("public_key")]
+    return {"keys": pf.BUILTIN_KEYS + own, "custom_keys": own,
+            "auto_approve": t.get("auto_approve", True), "require_signature": bool(t.get("require_signature", False))}
+
+
+_sig_cache: dict[tuple, dict] = {}
+
+
+def sig_info(p: Plugin, t: dict | None = None) -> dict:
+    t = t or trust()
+    key = (p.dir, p.hash, json.dumps(p.signature, sort_keys=True), tuple(k["public_key"] for k in t["keys"]))
+    if key not in _sig_cache:
+        _sig_cache[key] = pf.check_signature(p.signature, p.id, str(p.m.get("version", "")), p.hash, t["keys"])
+    return _sig_cache[key]
+
+
+def state_of(p: Plugin, st: PluginState | None, t: dict | None = None) -> str:
     if p.error:
         return "invalid"
     if p.source == "builtin":
+        return "disabled" if st and not st.enabled else "active"
+    t = t or trust()
+    si = sig_info(p, t)
+    if si["state"] == "invalid":
+        return "invalid"
+    signed_ok = si["state"] == "valid" and si["trusted"]
+    if t["require_signature"] and not signed_ok:
+        return "untrusted"
+    if signed_ok and t["auto_approve"]:              # trusted publisher: no manual approval needed
         return "disabled" if st and not st.enabled else "active"
     if not st or not st.approved_hash:
         return "new"
@@ -374,13 +394,20 @@ def plugins_list(u=Depends(rolle("leser"))):
     scan()
     states = _states()
     conns = _conns()
+    t = trust()
+    import plugin_catalog
+    installs = plugin_catalog.installs()
     out = []
     for pid, p in sorted(_plugins.items(), key=lambda kv: (kv[1].m.get("order", 100), kv[0])):
-        st = state_of(p, states.get(pid))
+        st = state_of(p, states.get(pid), t)
+        si = sig_info(p, t)
+        p_error = p.error or (f"Signatur: {si.get('reason')}" if si["state"] == "invalid" else "")
         ui = p.m.get("ui") or {}
         item = {"id": pid, "name": p.m.get("name", pid), "title": p.m.get("title", ""), "version": p.m.get("version", ""),
                 "description": p.m.get("description", ""), "group": p.m.get("group", "Plugins"),
-                "author": p.m.get("author", ""), "source": p.source, "state": st, "error": p.error,
+                "author": p.m.get("author", ""), "source": p.source, "state": st, "error": p_error,
+                "signature": si, "install": installs.get(pid), "mira_min": p.m.get("mira_min", ""),
+                "removable": p.source == "folder",
                 "hash": p.hash[:12], "icon": f"/plugins/{pid}/{p.m['icon']}" if p.m.get("icon") else None,
                 "app": p.connect()["app"], "connect_type": p.connect()["type"], "views": ui.get("views", []),
                 "connections": [_conn_json(c) for c in conns if c.plugin_id == pid]}
@@ -388,7 +415,8 @@ def plugins_list(u=Depends(rolle("leser"))):
             item["scripts"] = [f"/plugins/{pid}/{f}?v={p.hash[:10]}" for f in ui.get("scripts", [])]
             item["styles"] = [f"/plugins/{pid}/{f}?v={p.hash[:10]}" for f in ui.get("styles", [])]
         out.append(item)
-    return {"plugins": out, "folder": USER_DIR}
+    return {"plugins": out, "folder": USER_DIR, "trust": {k: v for k, v in t.items() if k != "keys"},
+            "builtin_keys": pf.BUILTIN_KEYS}
 
 
 @router.post("/api/plugins/rescan")
@@ -408,6 +436,62 @@ def plugin_approve(pid: str, u=Depends(rolle("admin"))):
         s.merge(st)
     _audit(u, "Plugin freigegeben", f"{p.m.get('name', pid)} {p.m.get('version', '')}", details=f"Fingerabdruck {p.hash}")
     return {"ok": True}
+
+
+@router.get("/api/plugins/trust")
+def plugin_trust_get(u=Depends(rolle("admin"))):
+    t = trust()
+    return {"builtin_keys": pf.BUILTIN_KEYS, "keys": t["custom_keys"], "auto_approve": t["auto_approve"],
+            "require_signature": t["require_signature"]}
+
+
+@router.put("/api/plugins/trust")
+async def plugin_trust_put(req: Request, u=Depends(rolle("admin"))):
+    import base64
+    d = await req.json()
+    keys = []
+    for k in d.get("keys") or []:
+        raw = str(k.get("public_key", "")).strip()
+        kid = str(k.get("key_id") or "").strip()
+        if ":" in raw:                                  # "sysrix:BASE64" as printed by mira_plugin.py keygen
+            kid2, raw = raw.split(":", 1)
+            kid = kid or kid2
+        try:
+            if len(base64.b64decode(raw, validate=True)) != 32:
+                raise ValueError
+        except ValueError as e:
+            raise HTTPException(400, f"Schlüssel „{k.get('name') or kid}“ ist kein Ed25519-Schlüssel (32 Bytes Base64)") from e
+        keys.append({"key_id": (kid or "key")[:64], "name": str(k.get("name") or kid or "")[:128], "public_key": raw})
+    val = {"keys": keys, "auto_approve": bool(d.get("auto_approve", True)), "require_signature": bool(d.get("require_signature"))}
+    kern.einstellung_setzen("plugin_trust", val)
+    _sig_cache.clear()
+    _audit(u, "Plugin-Vertrauen geändert", details=f"{len(keys)} eigene Schlüssel, automatisch freigeben {val['auto_approve']}, "
+                                                   f"nur signierte {val['require_signature']}")
+    return plugin_trust_get(u)
+
+
+@router.delete("/api/plugins/{pid}")
+def plugin_uninstall(pid: str, u=Depends(rolle("admin"))):
+    """Removes a folder plugin (moved to .trash in the plugin folder, nothing is deleted for good)."""
+    import shutil
+    import plugin_catalog
+    p = plugin(pid)
+    if p.source != "folder":
+        raise HTTPException(400, "Mitgelieferte Plugins lassen sich nur ausschalten")
+    if _conns(pid):
+        raise HTTPException(400, "Erst die Verbindungen des Plugins entfernen (MIRA widerruft dabei seinen Schlüssel)")
+    trash = os.path.join(USER_DIR, ".trash")
+    os.makedirs(trash, exist_ok=True)
+    dst = os.path.join(trash, f"{os.path.basename(p.dir)}-{jetzt().strftime('%Y%m%d-%H%M%S')}")
+    shutil.move(p.dir, dst)
+    with sitzung() as s:
+        x = s.get(PluginState, pid)
+        if x:
+            s.delete(x)
+    plugin_catalog.forget_install(pid)
+    scan()
+    _audit(u, "Plugin entfernt", f"{p.m.get('name', pid)} {p.m.get('version', '')}", details=f"verschoben nach {dst}")
+    return {"ok": True, "moved_to": dst}
 
 
 @router.post("/api/plugins/{pid}/disable")

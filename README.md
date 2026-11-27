@@ -92,17 +92,21 @@ Beim ersten Start von 0.4.0 werden die bisherigen HAProxy- und nginx-**Verbindun
 
 ## Plugins
 
-Ein Plugin bindet ein anderes Programm in MIRA ein. Es liegt als Ordner mit `plugin.json` vor – SysriX-Programme liefern ihn im eigenen Repository mit (VERA: `mira-plugin/vera/`).
+Ein Plugin bindet ein anderes Programm in MIRA ein. SysriX-Programme liefern es im eigenen Repository im Ordner **`plugin_mira/`** mit (VERA, UMA, Cert Warden …). Wie ein Plugin aufgebaut ist: [SysriX/mira_plugin_template](https://github.com/SysriX/mira_plugin_template).
 
-**Mitgeliefert:** **Cert Warden** (Zertifikate) – ist sofort aktiv, nur noch einrichten: Navigation › Cert Warden › Einrichtung starten → Adresse (Suche auf Port 4055/4050) → Benutzer und Passwort von Cert Warden. Weil Cert Warden keine API-Schlüssel für die Verwaltung kennt, speichert MIRA die Anmeldedaten verschlüsselt und holt sich selbst die kurzlebigen Tokens.
+**Plugins › Katalog** – MIRA fragt die eingetragenen Plugin-Verzeichnisse ([PIA](https://github.com/SysriX/pia_web)) regelmäßig ab (Standard alle 6 Stunden) und bietet alle verfügbaren Plugins zum **Installieren** an; bei installierten erscheint **Aktualisieren**, sobald es eine neue Version gibt. MIRA prüft Prüfsumme und Signatur, legt das Plugin im Plugin-Ordner ab (alte Fassung nach `.backup/`) und schaltet es frei.
 
-Weitere Plugins:
+**Plugins › Quellen** – Plugin-Verzeichnisse mit Adresse und **App-Schlüssel** (in PIA erzeugt). Mit dem Recht *Veröffentlichen* oder *Verwalten* lässt sich das Verzeichnis direkt aus MIRA pflegen: Pakete hochladen, zurückziehen, löschen, App-Schlüssel, Benutzer, Protokoll, Einstellungen. Installierte Plugins lassen sich auch von MIRA aus hochladen (*Installiert › … › Hochladen*).
 
-1. Plugin-Ordner nach **`/config/plugins/`** kopieren (z. B. `/config/plugins/vera/`).
-2. MIRA › **Plugins** › „Ordner neu einlesen“ → das Plugin erscheint als **neu** und unter seinem Namen in der Navigation. Ein Admin gibt es frei (es bringt eigenen Programmcode mit). Ändern sich seine Dateien, muss es neu freigegeben werden.
-3. Auf den Knopf (z. B. **VERA**) klicken → **Einrichtungs-Assistent**: sucht das Programm im eigenen Netz (oder in angegebenen Netzen, auch mit Port: `192.168.10.0/24:8443`), alternativ Adresse eingeben.
-4. Einmal mit einem **Admin des Programms** anmelden. Das Programm stellt MIRA dafür einen eigenen **Schlüssel** aus; Benutzer und Passwort werden nicht gespeichert. Im Programm unter „Verbundene Apps“ jederzeit widerrufbar.
-5. Danach erscheinen dessen Seiten in der Navigation (VERA: WireGuard, Firewalls, Benutzer, Protokoll) – mit derselben Oberfläche wie im Programm selbst.
+**Plugins › Vertrauen** – Herausgeber-Schlüssel (Ed25519). SysriX ist eingebaut: signierte SysriX-Plugins sind ohne Freigabe sofort aktiv. Unsignierte Plugins gibt ein Admin einmal frei (und nach jeder Änderung erneut); optional „Nur signierte Plugins zulassen“.
+
+Von Hand geht es weiterhin: Plugin-Ordner nach **`/config/plugins/<id>/`** kopieren → *Plugins › Ordner neu einlesen*.
+
+Danach:
+
+1. Auf den Knopf (z. B. **VERA**) klicken → **Einrichtungs-Assistent**: sucht das Programm im eigenen Netz (oder in angegebenen Netzen, auch mit Port: `192.168.10.0/24:8443`), alternativ Adresse eingeben.
+2. Einmal mit einem **Admin des Programms** anmelden. Das Programm stellt MIRA dafür einen eigenen **Schlüssel** aus; Benutzer und Passwort werden nicht gespeichert. Im Programm unter „Verbundene Apps“ jederzeit widerrufbar. (Cert Warden kennt keine Schlüssel – dort speichert MIRA die Anmeldedaten verschlüsselt.)
+3. Danach erscheinen dessen Seiten in der Navigation (VERA: WireGuard, Firewalls, Benutzer, Protokoll) – mit derselben Oberfläche wie im Programm selbst.
 
 Rechte: MIRA-**Leser** sehen nur, **Operatoren** dürfen ändern, nur MIRA-**Admins** bekommen die Admin-Funktionen des Programms. Beim Verbinden lässt sich der Schlüssel zusätzlich auf „Bearbeiten“ oder „Nur lesen“ begrenzen. Im Protokoll des Programms steht, welcher MIRA-Benutzer etwas geändert hat.
 

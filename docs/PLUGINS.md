@@ -1,6 +1,18 @@
 # MIRA-Plugins
 
-Ein Plugin bindet ein anderes Programm in MIRA ein, sodass man es in MIRA bedient, als wäre man direkt darin. Beispiel: [VERA](https://github.com/SysriX/vera_unraid) (Ordner `mira-plugin/vera/`).
+Ein Plugin bindet ein anderes Programm in MIRA ein, sodass man es in MIRA bedient, als wäre man direkt darin. Beispiel: [VERA](https://github.com/SysriX/vera_unraid) (Ordner `plugin_mira/`).
+
+> **Vollständige Anleitung mit Vorlage, Beispiel-Plugin, Beispiel-Programm und Werkzeug:** [SysriX/mira_plugin_template](https://github.com/SysriX/mira_plugin_template)
+> (Plugin-Format 1 mit Fingerabdruck und Signatur, Verbindungsstandard, UI-API). Plugin-Verzeichnis: [SysriX/pia_web](https://github.com/SysriX/pia_web).
+
+## Katalog (seit MIRA 0.6.0)
+
+- *Plugins › Quellen*: PIA-Adresse + App-Schlüssel. MIRA ruft `GET /api/v1/me` und `GET /api/v1/plugins` ab (Hintergrund, Intervall je Quelle, Standard 6 h).
+- *Plugins › Katalog › Installieren*: `GET /api/v1/plugins/<id>/versions/<v>/download` → Prüfsumme gegen den Katalog, ZIP sicher entpacken (keine Links, kein `..`), Signatur prüfen, nach `<MIRA_PLUGINS>/<id>/` (alte Fassung nach `.backup/`). Die Installation durch einen Admin gilt als Freigabe.
+- *Verwalten*: MIRA leitet `/api/plugin-sources/<n>/remote/<pfad>` an `<PIA>/api/v1/<pfad>` weiter (nur MIRA-Admins, nur bekannte Pfade); was erlaubt ist, entscheidet PIA anhand des Schlüssels.
+- *Vertrauen*: SysriX-Schlüssel eingebaut, eigene Schlüssel ergänzbar (`kennung:BASE64`). Signiert + vertrauenswürdig = ohne Freigabe aktiv (abschaltbar); „nur signierte“ sperrt alles andere (Status `untrusted`).
+- Neue Tabellen: `mira_plugin_source`, `mira_plugin_install`; Einstellung `plugin_trust`.
+- Fingerabdruck seit 0.6.0 nach Format 1 (Pfade byteweise sortiert, ohne versteckte Dateien und `signature.json`) – unsignierte, von Hand kopierte Plugins müssen nach dem Update einmal neu freigegeben werden.
 
 ## Ablauf für den Benutzer
 
@@ -121,7 +133,7 @@ Programme, die den SysriX-Standard nicht sprechen, bindet MIRA über einen **ein
 
 | `type` | Programm | Anmeldung |
 | --- | --- | --- |
-| `certwarden` | Cert Warden ab v0.31 (mitgeliefert: `app/plugins/certwarden/`) | Benutzer + Passwort werden verschlüsselt gespeichert; MIRA meldet sich an (`/certwarden/api/v1/app/auth/login`), schickt das Token als `Authorization: <token>` und erneuert es über das Sitzungs-Cookie |
+| `certwarden` | Cert Warden ab v0.31 (Plugin im Repository [certwarden_unraid](https://github.com/SysriX/certwarden_unraid), Ordner `plugin_mira/`) | Benutzer + Passwort werden verschlüsselt gespeichert; MIRA meldet sich an (`/certwarden/api/v1/app/auth/login`), schickt das Token als `Authorization: <token>` und erneuert es über das Sitzungs-Cookie |
 
 Unterschiede zum SysriX-Standard:
 
@@ -135,5 +147,5 @@ Ein neuer Anschluss ist eine Klasse mit `probe`, `detect`, `pair`, `request`, `c
 ## Geplant
 
 - Weitere Anschlüsse für fremde Programme (z. B. Unraid, Proxmox direkt).
-- Die eingebauten Module als mitgelieferte Plugins (`app/plugins/`, automatisch freigegeben).
-- Signierte Plugins (Ed25519, wie die ALMA-Lizenzen): „von SysriX signiert“ statt nur Fingerabdruck.
+- Die eingebauten Module als Plugins.
+- Plugins für DORA, BERTA, ALMA, LIMA, NINA … (diese Programme brauchen zuerst den Verbindungsstandard).

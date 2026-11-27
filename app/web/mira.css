@@ -146,3 +146,12 @@ img.symbol{filter:drop-shadow(0 0 8px rgba(255,255,255,.16)) drop-shadow(0 2px 3
 .mig-tab td{vertical-align:top}.mig-tab input[type=text],.mig-tab input:not([type]){min-width:140px}
 .mig-konflikt{color:var(--bad);font-size:12px}.mig-aus{opacity:.55}
 .mig-details{margin-top:6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 12px}
+/* plugin catalog */
+.katalog-eintrag{display:flex;flex-direction:column}
+.katalog-eintrag .t{align-items:flex-start;gap:10px}
+.katalog-icon{width:40px;height:40px;object-fit:contain;flex:none}
+.katalog-eintrag .s{flex:1}
+.katalog-fuss{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.katalog-ersatz{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:var(--code);color:var(--akzent);font-weight:700;font-size:20px;width:40px;height:40px}
+.plugin-kopf .katalog-ersatz{width:52px;height:52px;font-size:26px}
+.nav-icon.katalog-ersatz{width:16px;height:16px;font-size:10px;border-radius:4px}

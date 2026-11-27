@@ -1,6 +1,7 @@
 """MIRA – Management, Identity, Routing & Access. Startpunkt (FastAPI + uvicorn)."""
 from __future__ import annotations
 
+import asyncio
 import os
 from contextlib import asynccontextmanager
 
@@ -16,6 +17,7 @@ import anmeldung  # noqa: E402
 import einrichtung  # noqa: E402
 import verwaltung  # noqa: E402
 import plugins  # noqa: E402
+import plugin_catalog  # noqa: E402
 import servers  # noqa: E402
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -31,8 +33,10 @@ async def lebenszyklus(app):
         kern.log("Datenbank nicht erreichbar:", e)
     einrichtung.code_melden()
     plugins.scan()
+    katalog = asyncio.create_task(plugin_catalog.loop())
     kern.log(f"MIRA {kern.VERSION} bereit – Module: {', '.join(module.REGISTER)} – Server: {len(servers.all_servers()) if kern.db_bereit() else '–'} – Plugins: {', '.join(plugins._plugins) or '–'}")
     yield
+    katalog.cancel()
 
 
 app = FastAPI(title="MIRA", version=kern.VERSION, docs_url=None, redoc_url=None, openapi_url=None, lifespan=lebenszyklus)
@@ -83,6 +87,7 @@ app.include_router(anmeldung.router)
 app.include_router(einrichtung.router)
 app.include_router(verwaltung.router)
 app.include_router(plugins.router)
+app.include_router(plugin_catalog.router)
 for r in servers.ROUTERS:
     app.include_router(r)
 for m in module.REGISTER.values():

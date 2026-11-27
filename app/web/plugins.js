@@ -106,7 +106,7 @@ function pluginKopf(p) {
 }
 
 const stateMark = p => ({ active: marke("aktiv", "ok"), new: marke("neu – nicht freigegeben", "warn"), changed: marke("geändert – neu freigeben", "warn"),
-  disabled: marke("ausgeschaltet"), invalid: marke("fehlerhaft", "bad") }[p.state]);
+  disabled: marke("ausgeschaltet"), invalid: marke("fehlerhaft", "bad"), untrusted: marke("nicht vertrauenswürdig signiert", "bad") }[p.state]);
 
 async function pluginFreigeben(p) {
   if (!(await bestaetigen(`Plugin „${p.name}“ ${p.version} freigeben? Es bringt eigenen Programmcode mit, der in MIRA mit den Rechten des jeweiligen Benutzers läuft. Nur Plugins aus vertrauenswürdiger Quelle freigeben.`, "Freigeben", false))) return;
@@ -124,9 +124,11 @@ async function pluginStart(main, pid) {
     leeren(main, h("div", { class: "karte" }, pluginKopf(p), h("p", {}, stateMark(p)),
       p.error ? h("pre", {}, p.error) : null,
       h("p", { class: "leise klein-t" }, `Quelle: ${p.source === "builtin" ? "mit MIRA geliefert" : "Plugin-Ordner"} · Fingerabdruck ${p.hash}`),
-      p.state === "new" || p.state === "changed" ? h("p", { class: "klein-t" }, "Ein Plugin bringt eigenen Programmcode mit und wird erst nach Freigabe durch einen Admin geladen. Ändern sich seine Dateien, muss es neu freigegeben werden.") : null,
-      a && p.state !== "invalid" ? h("div", { class: "leiste" }, h("button", { class: "p", onclick: () => pluginFreigeben(p) }, p.state === "disabled" ? "Einschalten" : "Freigeben")) :
-        p.state !== "invalid" ? h("p", { class: "leise" }, "Ein Admin muss das Plugin freigeben.") : null));
+      p.source !== "builtin" ? h("p", {}, sigMark(p.signature), p.signature && p.signature.reason ? h("span", { class: "leise klein-t" }, " ", p.signature.reason) : null) : null,
+      p.state === "new" || p.state === "changed" ? h("p", { class: "klein-t" }, "Ein Plugin bringt eigenen Programmcode mit und wird erst nach Freigabe durch einen Admin geladen. Ändern sich seine Dateien, muss es neu freigegeben werden. Plugins vertrauenswürdiger Herausgeber (Signatur) sind sofort aktiv.") : null,
+      p.state === "untrusted" ? h("p", { class: "klein-t" }, "MIRA lässt nur signierte Plugins zu (Plugins › Vertrauen).") : null,
+      a && !["invalid", "untrusted"].includes(p.state) ? h("div", { class: "leiste" }, h("button", { class: "p", onclick: () => pluginFreigeben(p) }, p.state === "disabled" ? "Einschalten" : "Freigeben")) :
+        !["invalid", "untrusted"].includes(p.state) ? h("p", { class: "leise" }, "Ein Admin muss das Plugin freigeben.") : null));
     return;
   }
   if (!p.connections.length) {
@@ -242,31 +244,7 @@ async function pluginAssistent(p) {
   }
 }
 
-// ------------------------------------------------------------------ admin page
-ANSICHT.plugins = { titel: "Plugins", zeigen: async main => {
-  const d = await api("GET", "/api/plugins");
-  PLUGINS = d.plugins;
-  leeren(main, h("div", { class: "karte" },
-    h("h2", {}, "Plugins", h("span", { class: "rechts" }, h("button", { class: "klein", onclick: async () => {
-      await versuch(() => api("POST", "/api/plugins/rescan"), "Ordner neu eingelesen"); await ladePlugins(); zeige();
-    } }, "Ordner neu einlesen"))),
-    h("p", { class: "leise klein-t" }, "Ein Plugin bindet ein anderes Programm (z. B. VERA) in MIRA ein: Plugin-Ordner nach ", h("code", {}, d.folder),
-      " kopieren, hier freigeben, dann führt ein Assistent durch die Verbindung. Danach arbeitet man in MIRA wie direkt im Programm."),
-    tabelle([
-      { t: "", w: p => p.icon ? h("img", { src: p.icon, alt: "", class: "nav-icon" }) : "" },
-      { t: "Plugin", w: p => h("div", {}, h("b", {}, p.name), " ", h("span", { class: "leise klein-t" }, p.version), p.description ? h("div", { class: "leise klein-t" }, p.description) : null) },
-      { t: "Status", w: p => stateMark(p) },
-      { t: "Quelle", w: p => h("span", { class: "klein-t" }, p.source === "builtin" ? "mitgeliefert" : "Ordner", h("div", { class: "leise" }, p.hash)) },
-      { t: "Verbindungen", w: p => p.connections.length ? p.connections.map(c => h("div", { class: "klein-t" }, punkt(c.status.startsWith("ok") ? "ok" : "bad"), " ", c.name)) : h("span", { class: "leise" }, "–") },
-      { t: "", w: p => h("span", {},
-        p.state === "new" || p.state === "changed" || p.state === "disabled" ? h("button", { class: "klein p", onclick: e => { e.stopPropagation(); pluginFreigeben(p); } }, p.state === "disabled" ? "Einschalten" : "Freigeben") : null,
-        p.state === "active" ? h("button", { class: "klein", onclick: async e => {
-          e.stopPropagation();
-          if (!(await bestaetigen(`Plugin „${p.name}“ ausschalten? Die Verbindungen bleiben gespeichert.`, "Ausschalten"))) return;
-          await versuch(() => api("POST", `/api/plugins/${p.id}/disable`), "Ausgeschaltet"); await ladePlugins(); zeige();
-        } }, "Ausschalten") : null) }],
-    d.plugins, { klick: p => { location.hash = "#" + p.id; }, leer: "Noch keine Plugins – Plugin-Ordner hierher kopieren und „Ordner neu einlesen“." })));
-} };
+// admin page (installed / catalog / sources / trust): plugin-catalog.js
 
 // ------------------------------------------------------------------ overview: plugin tiles
 (() => {
@@ -279,7 +257,7 @@ ANSICHT.plugins = { titel: "Plugins", zeigen: async main => {
       h("div", { class: "kacheln" }, sichtbar.map(p => {
         const c = p.connections;
         const ok = c.length && c.every(x => x.status.startsWith("ok"));
-        const text = p.state !== "active" ? { new: "neu – freigeben", changed: "geändert – neu freigeben", disabled: "ausgeschaltet", invalid: "fehlerhaft" }[p.state]
+        const text = p.state !== "active" ? { new: "neu – freigeben", changed: "geändert – neu freigeben", disabled: "ausgeschaltet", invalid: "fehlerhaft", untrusted: "nicht vertrauenswürdig" }[p.state]
           : c.length ? c.map(x => x.name).join(", ") : "noch nicht eingerichtet";
         return h("div", { class: "kachel klick", onclick: () => { location.hash = "#" + p.id; } },
           h("div", { class: "t" }, p.icon ? h("img", { src: p.icon, alt: "", class: "nav-icon" }) : null, punkt(p.state !== "active" || !c.length ? "warn" : ok ? "ok" : "bad"), p.name),
